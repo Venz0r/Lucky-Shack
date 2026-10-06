@@ -1,1107 +1,1679 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>LuckyShack</title>
 
-  <title>LuckyShack 2.0</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
 
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#fff;
+  background:
+    radial-gradient(circle at top,#452080 0%,#211044 42%,#100720 100%);
+  overflow-x:hidden;
+}
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      min-height: 100%;
-    }
+button{
+  border:0;
+  font:inherit;
+  cursor:pointer;
+}
 
-    body {
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-      color: white;
-      background:
-        radial-gradient(circle at 50% 0%, #5b21b6 0%, #241044 35%, #090615 78%);
-      overflow-x: hidden;
-    }
+.app{
+  width:100%;
+  max-width:520px;
+  min-height:100vh;
+  margin:auto;
+  padding:18px 16px 30px;
+}
 
-    button {
-      font: inherit;
-    }
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:18px;
+}
 
-    .app {
-      width: min(440px, 100%);
-      margin: 0 auto;
-      padding: 16px;
-    }
+.logo{
+  font-size:25px;
+  font-weight:900;
+  letter-spacing:.5px;
+}
 
-    .top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
+.logo span{
+  color:#ff4fd8;
+}
 
-    .logo {
-      font-size: 24px;
-      font-weight: 900;
-    }
+.user{
+  max-width:170px;
+  padding:8px 12px;
+  border-radius:20px;
+  background:rgba(255,255,255,.1);
+  font-size:13px;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
 
-    .version {
-      font-size: 11px;
-      opacity: .5;
-      margin-left: 4px;
-    }
+.screen{
+  display:none;
+}
 
-    .user {
-      max-width: 145px;
-      padding: 8px 11px;
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 14px;
-      background: rgba(255,255,255,.09);
-      font-size: 13px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+.screen.active{
+  display:block;
+}
 
-    .hero {
-      text-align: center;
-      margin: 6px 0 18px;
-    }
+.card{
+  padding:18px;
+  margin-bottom:14px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:22px;
+  background:rgba(255,255,255,.08);
+  box-shadow:0 10px 35px rgba(0,0,0,.2);
+  backdrop-filter:blur(10px);
+}
 
-    .hero h1 {
-      margin: 0;
-      font-size: 30px;
-    }
+.hero{
+  text-align:center;
+  padding:25px 18px;
+}
 
-    .hero p {
-      margin: 7px 0 0;
-      color: rgba(255,255,255,.65);
-      font-size: 13px;
-    }
+.hero h1{
+  margin:0 0 8px;
+  font-size:34px;
+}
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
+.hero p{
+  margin:0;
+  color:#c9bfe2;
+  line-height:1.45;
+}
 
-    .stat {
-      padding: 12px 5px;
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 16px;
-      background: rgba(255,255,255,.07);
-      text-align: center;
-    }
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+  margin-top:18px;
+}
 
-    .stat-value {
-      font-size: 20px;
-      font-weight: 900;
-    }
+.stat{
+  padding:12px 6px;
+  border-radius:15px;
+  background:rgba(0,0,0,.2);
+  text-align:center;
+}
 
-    .stat-label {
-      margin-top: 3px;
-      color: rgba(255,255,255,.52);
-      font-size: 10px;
-    }
+.stat-value{
+  font-size:21px;
+  font-weight:800;
+}
 
-    .game {
-      padding: 18px;
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 25px;
-      background: rgba(15, 8, 35, .75);
-      box-shadow: 0 20px 50px rgba(0,0,0,.35);
-    }
+.stat-label{
+  margin-top:4px;
+  color:#aaa0c2;
+  font-size:11px;
+}
 
-    .reels {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 9px;
-    }
+.menu{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
 
-    .reel {
-      height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid rgba(255,255,255,.12);
-      border-radius: 20px;
-      background: linear-gradient(
-        145deg,
-        rgba(255,255,255,.16),
-        rgba(255,255,255,.05)
-      );
-      box-shadow: inset 0 0 20px rgba(255,255,255,.04);
-      font-size: 52px;
-      user-select: none;
-    }
+.menu-btn{
+  min-height:95px;
+  padding:14px;
+  border-radius:20px;
+  color:#fff;
+  background:linear-gradient(145deg,#7938d7,#4a1c9a);
+  box-shadow:0 8px 20px rgba(87,34,173,.25);
+  transition:.15s;
+}
 
-    .reel.win {
-      animation: win .55s ease;
-      border-color: #ffd84d;
-    }
+.menu-btn:active{
+  transform:scale(.96);
+}
 
-    @keyframes win {
-      0% {
-        transform: scale(1);
-      }
+.menu-icon{
+  display:block;
+  margin-bottom:7px;
+  font-size:28px;
+}
 
-      40% {
-        transform: scale(1.12);
-      }
+.menu-title{
+  font-weight:800;
+  font-size:15px;
+}
 
-      100% {
-        transform: scale(1);
-      }
-    }
+.menu-sub{
+  margin-top:4px;
+  color:#d8ccef;
+  font-size:11px;
+}
 
-    .message {
-      min-height: 27px;
-      margin: 15px 0 4px;
-      text-align: center;
-      font-weight: 900;
-    }
+.back{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-bottom:14px;
+  padding:8px 12px;
+  border-radius:12px;
+  color:#dcd1ef;
+  background:rgba(255,255,255,.08);
+}
 
-    .reward {
-      min-height: 22px;
-      color: rgba(255,255,255,.75);
-      text-align: center;
-      font-size: 14px;
-    }
+.game-title{
+  text-align:center;
+  margin-bottom:12px;
+}
 
-    .play {
-      width: 100%;
-      margin-top: 15px;
-      padding: 17px;
-      border: 0;
-      border-radius: 18px;
-      color: white;
-      background: linear-gradient(135deg, #ec4899, #8b5cf6);
-      box-shadow: 0 10px 30px rgba(139,92,246,.35);
-      font-size: 18px;
-      font-weight: 900;
-      cursor: pointer;
-    }
+.game-title h2{
+  margin:0;
+  font-size:26px;
+}
 
-    .play:active {
-      transform: scale(.97);
-    }
+.game-title p{
+  margin:6px 0 0;
+  color:#aaa0c2;
+  font-size:13px;
+}
 
-    .play:disabled {
-      opacity: .55;
-    }
+.reels{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+  margin:20px 0;
+}
 
-    .section {
-      margin-top: 14px;
-      padding: 16px;
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 20px;
-      background: rgba(255,255,255,.07);
-    }
-      .section-title {
-      margin-bottom: 11px;
-      font-size: 15px;
-      font-weight: 900;
-    }
+.reel{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:105px;
+  border-radius:20px;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.12);
+  font-size:48px;
+  box-shadow:inset 0 0 25px rgba(255,255,255,.03);
+}
 
-    .level-line {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 13px;
-    }
+.reel.spin{
+  animation:bounce .12s linear infinite;
+}
 
-    .xp-text {
-      color: rgba(255,255,255,.6);
-    }
+@keyframes bounce{
+  0%{transform:translateY(-3px)}
+  50%{transform:translateY(3px)}
+  100%{transform:translateY(-3px)}
+}
 
-    .xp-bar {
-      height: 9px;
-      margin-top: 9px;
-      overflow: hidden;
-      border-radius: 20px;
-      background: rgba(255,255,255,.08);
-    }
+.spin-btn{
+  width:100%;
+  padding:17px;
+  border-radius:18px;
+  color:#fff;
+  font-size:19px;
+  font-weight:900;
+  background:linear-gradient(135deg,#ff42cf,#ff6a9c);
+  box-shadow:0 8px 25px rgba(255,70,185,.28);
+}
 
-    .xp-fill {
-      width: 0%;
-      height: 100%;
-      border-radius: 20px;
-      background: linear-gradient(90deg, #ec4899, #8b5cf6);
-      transition: width .4s ease;
-    }
+.spin-btn:active{
+  transform:scale(.98);
+}
 
-    .achievement {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,.07);
-    }
+.spin-btn:disabled{
+  opacity:.55;
+}
 
-    .achievement:last-child {
-      border-bottom: 0;
-    }
+.result{
+  min-height:27px;
+  margin:15px 0 4px;
+  text-align:center;
+  font-size:17px;
+  font-weight:800;
+}
 
-    .achievement-icon {
-      width: 38px;
-      height: 38px;
-      flex: 0 0 38px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      background: rgba(255,255,255,.10);
-      font-size: 20px;
-    }
+.progress{
+  height:9px;
+  margin-top:8px;
+  overflow:hidden;
+  border-radius:10px;
+  background:rgba(255,255,255,.1);
+}
 
-    .achievement-text {
-      min-width: 0;
-      flex: 1;
-    }
+.progress-bar{
+  height:100%;
+  width:0%;
+  border-radius:10px;
+  background:linear-gradient(90deg,#ff44ce,#8c52ff);
+  transition:.3s;
+}
 
-    .achievement-name {
-      font-size: 13px;
-      font-weight: 800;
-    }
+.xp-text{
+  display:flex;
+  justify-content:space-between;
+  margin-top:7
 
-    .achievement-desc {
-      margin-top: 3px;
-      color: rgba(255,255,255,.55);
-      font-size: 11px;
-    }
 
-    .locked {
-      opacity: .35;
-    }
+px;
+  color:#aaa0c2;
+  font-size:11px;
+}
 
-    .daily {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
+.mode-info{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:12px;
+  color:#d8ccef;
+  font-size:13px;
+}
 
-    .daily-title {
-      font-size: 13px;
-      font-weight: 900;
-    }
+.target{
+  padding:12px;
+  margin-bottom:15px;
+  border-radius:15px;
+  text-align:center;
+  background:rgba(255,255,255,.08);
+}
 
-    .daily-desc {
-      margin-top: 4px;
-      color: rgba(255,255,255,.55);
-      font-size: 11px;
-    }
+.target-symbol{
+  margin-top:5px;
+  font-size:38px;
+}
 
-    .daily button {
-      flex: 0 0 auto;
-      padding: 10px 13px;
-      border: 0;
-      border-radius: 12px;
-      color: white;
-      background: rgba(255,255,255,.13);
-      font-weight: 800;
-      cursor: pointer;
-    }
+.timer{
+  text-align:center;
+  margin:5px 0 12px;
+  font-size:32px;
+  font-weight:900;
+}
 
-    .daily button:disabled {
-      opacity: .4;
-    }
+.list{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
 
-    .footer {
-      margin: 17px 0 5px;
-      color: rgba(255,255,255,.35);
-      text-align: center;
-      font-size: 10px;
-      line-height: 1.4;
-    }
-  </style>
+.list-item{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:12px;
+  border-radius:15px;
+  background:rgba(255,255,255,.07);
+}
+
+.achievement-icon{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:42px;
+  height:42px;
+  flex:none;
+  border-radius:13px;
+  background:rgba(255,255,255,.1);
+  font-size:22px;
+}
+
+.list-info{
+  flex:1;
+}
+
+.list-title{
+  font-weight:800;
+  font-size:14px;
+}
+
+.list-desc{
+  margin-top:3px;
+  color:#aaa0c2;
+  font-size:11px;
+}
+
+.locked{
+  opacity:.42;
+}
+
+.profile{
+  text-align:center;
+}
+
+.avatar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:85px;
+  height:85px;
+  margin:0 auto 12px;
+  border-radius:50%;
+  font-size:35px;
+  font-weight:900;
+  background:linear-gradient(135deg,#ff42cf,#7040e8);
+}
+
+.profile-name{
+  font-size:23px;
+  font-weight:900;
+}
+
+.profile-level{
+  margin-top:5px;
+  color:#bcb0d3;
+  font-size:13px;
+}
+
+.profile-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:18px;
+}
+
+.profile-stat{
+  padding:15px;
+  border-radius:16px;
+  background:rgba(255,255,255,.07);
+}
+
+.profile-stat strong{
+  display:block;
+  font-size:21px;
+}
+
+.profile-stat span{
+  color:#aaa0c2;
+  font-size:11px;
+}
+
+.daily{
+  text-align:center;
+}
+
+.daily-icon{
+  font-size:38px;
+}
+
+.daily h3{
+  margin:7px 0;
+}
+
+.daily p{
+  margin:0 0 13px;
+  color:#aaa0c2;
+  font-size:13px;
+}
+
+.small-btn{
+  padding:11px 18px;
+  border-radius:13px;
+  color:#fff;
+  background:#6934bd;
+  font-weight:700;
+}
+
+.small-btn:disabled{
+  opacity:.45;
+}
+
+.footer{
+  margin-top:20px;
+  text-align:center;
+  color:#726985;
+  font-size:10px;
+  line-height:1.5;
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:22px;
+  z-index:100;
+  width:max-content;
+  max-width:90%;
+  padding:12px 17px;
+  border-radius:14px;
+  background:#241536;
+  box-shadow:0 8px 30px rgba(0,0,0,.35);
+  transform:translate(-50%,20px);
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
+  font-size:13px;
+}
+
+.toast.show{
+  transform:translate(-50%,0);
+  opacity:1;
+}
+</style>
 </head>
 
 <body>
 
 <div class="app">
 
-  <div class="top">
-    <div class="logo">
-      LuckyShack <span class="version">2.0</span>
-    </div>
-
-    <div class="user" id="username">
-      👤 Игрок
-    </div>
+  <div class="header">
+    <div class="logo">Lucky<span>Shack</span> 🎮</div>
+    <div class="user" id="userName">Игрок</div>
   </div>
 
-  <div class="hero">
-    <h1>🎮 Arcade Zone</h1>
-    <p>Собирай комбинации и прокачивай свой рекорд</p>
-  </div>
+  <!-- HOME -->
+  <section id="home" class="screen active">
 
-  <div class="stats">
+    <div class="card hero">
+      <h1>LuckyShack</h1>
+      <p>
+        Аркадная игра с символами, уровнями,
+        достижениями и режимами.
+      </p>
 
-    <div class="stat">
-      <div class="stat-value" id="score">0</div>
-      <div class="stat-label">ОЧКИ</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-value" id="best">0</div>
-      <div class="stat-label">РЕКОРД</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-value" id="streak">0</div>
-      <div class="stat-label">КОМБО</div>
-    </div>
-
-  </div>
-
-  <div class="game">
-
-    <div class="reels">
-
-      <div class="reel" id="reel1">🍒</div>
-      <div class="reel" id="reel2">⭐</div>
-      <div class="reel" id="reel3">💎</div>
-
-    </div>
-
-    <div class="message" id="message">
-      Готов к игре?
-    </div>
-
-    <div class="reward" id="reward">
-      Собери одинаковые символы
-    </div>
-
-    <button class="play" id="play" type="button">
-      ▶ ИГРАТЬ
-    </button>
-
-  </div>
-
-  <div class="section">
-
-    <div class="section-title">
-      ⭐ Уровень игрока
-    </div>
-
-    <div class="level-line">
-
-      <b>
-        Уровень <span id="level">1</span>
-      </b>
-
-      <span class="xp-text">
-        XP: <span id="xp">0</span>
-      </span>
-
-    </div>
-
-    <div class="xp-bar">
-      <div class="xp-fill" id="xpFill"></div>
-    </div>
-
-  </div>
-
-  <div class="section">
-
-    <div class="section-title">
-      🏆 Достижения
-    </div>
-
-    <div id="achievements"></div>
-
-  </div>
-
-  <div class="section">
-
-    <div class="daily">
-
-      <div>
-        <div class="daily-title">
-          🎁 Ежедневный бонус
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value" id="homeScore">0</div>
+          <div class="stat-label">Очки</div>
         </div>
 
-        <div class="daily-desc">
-          Бесплатный бонус за вход
+        <div class="stat">
+          <div class="stat-value" id="homeBest">0</div>
+          <div class="stat-label">Рекорд</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-value" id="homeLevel">1</div>
+          <div class="stat-label">Уровень</div>
         </div>
       </div>
+    </div>
 
-      <button id="dailyButton" type="button">
-        Получить
+    <div class="menu">
+
+      <button class="menu-btn" onclick="openScreen('classic')">
+        <span class="menu-icon">🎰</span>
+        <div class="menu-title">Классика</div>
+        <div class="menu-sub">Собери одинаковые</div>
+      </button>
+
+      <button class="menu-btn" onclick="openScreen('time')">
+        <span class="menu-icon">⏱️</span>
+        <div class="menu-title">На время</div>
+        <div class="menu-sub">30 секунд</div>
+      </button>
+
+      <button class="menu-btn" onclick="openScreen('target')">
+        <span class="menu-icon">🎯</span>
+        <div class="menu-
+
+
+title">Цель</div>
+        <div class="menu-sub">Лови нужный символ</div>
+      </button>
+
+      <button class="menu-btn" onclick="openScreen('profile')">
+        <span class="menu-icon">👤</span>
+        <div class="menu-title">Профиль</div>
+        <div class="menu-sub">Статистика игрока</div>
+      </button>
+
+      <button class="menu-btn" onclick="openScreen('achievements')">
+        <span class="menu-icon">🏆</span>
+        <div class="menu-title">Достижения</div>
+        <div class="menu-sub">Собери их все</div>
+      </button>
+
+      <button class="menu-btn" onclick="claimDaily()">
+        <span class="menu-icon">🎁</span>
+        <div class="menu-title">Бонус дня</div>
+        <div class="menu-sub">Получить XP</div>
       </button>
 
     </div>
 
-  </div>
+    <div class="card daily" style="margin-top:14px;">
+      <div class="daily-icon">🎁</div>
+      <h3>Ежедневный бонус</h3>
+      <p id="dailyText">Сегодня можно получить бонус опыта.</p>
+      <button class="small-btn" id="dailyBtn" onclick="claimDaily()">
+        Получить +50 XP
+      </button>
+    </div>
+
+  </section>
+
+  <!-- CLASSIC -->
+  <section id="classic" class="screen">
+
+    <button class="back" onclick="goHome()">← Назад</button>
+
+    <div class="card">
+
+      <div class="game-title">
+        <h2>🎰 Классика</h2>
+        <p>Три одинаковых символа дают больше очков</p>
+      </div>
+
+      <div class="mode-info">
+        <span>Очки: <b id="classicScore">0</b></span>
+        <span>Серия: <b id="classicStreak">0</b> 🔥</span>
+      </div>
+
+      <div class="reels">
+        <div class="reel" id="reel1">🍒</div>
+        <div class="reel" id="reel2">⭐</div>
+        <div class="reel" id="reel3">💎</div>
+      </div>
+
+      <button class="spin-btn" id="classicBtn" onclick="classicSpin()">
+        КРУТИТЬ
+      </button>
+
+      <div class="result" id="classicResult"></div>
+
+    </div>
+
+    <div class="card">
+      <b>Как играть</b>
+      <p style="color:#aaa0c2;font-size:13px;line-height:1.5;">
+        Нажимай «Крутить» и попробуй собрать
+        одинаковые символы. Три одинаковых —
+        большой бонус к очкам и серии.
+      </p>
+    </div>
+
+  </section>
+
+  <!-- TIME -->
+  <section id="time" class="screen">
+
+    <button class="back" onclick="goHome()">← Назад</button>
+
+    <div class="card">
+
+      <div class="game-title">
+        <h2>⏱️ На время</h2>
+        <p>Набери как можно больше очков</p>
+      </div>
+
+      <div class="timer" id="timeTimer">30</div>
+
+      <div class="mode-info">
+        <span>Очки: <b id="timeScore">0</b></span>
+        <span>Раунд: <b id="timeRounds">0</b></span>
+      </div>
+
+      <div class="reels">
+        <div class="reel" id="timeReel1">🍒</div>
+        <div class="reel" id="timeReel2">⭐</div>
+        <div class="reel" id="timeReel3">💎</div>
+      </div>
+
+      <button class="spin-btn" id="timeBtn" onclick="timeSpin()">
+        НАЧАТЬ
+      </button>
+
+      <div class="result" id="timeResult"></div>
+
+    </div>
+
+  </section>
+
+  <!-- TARGET -->
+  <section id="target" class="screen">
+
+    <button class="back" onclick="goHome()">← Назад</button>
+
+    <div class="card">
+
+      <div class="game-title">
+        <h2>🎯 Цель</h2>
+        <p>Собери нужный символ</p>
+      </div>
+
+      <div class="target">
+        Твоя цель:
+        <div class="target-symbol" id="targetSymbol">💎</div>
+      </div>
+
+      <div class="mode-info">
+        <span>Попаданий: <b id="targetHits">0</b>/3</span>
+        <span>Очки: <b id="targetScore">0</b></span>
+      </div>
+
+      <div class="reels">
+        <div class="reel" id="targetReel1">🍒</div>
+        <div class="reel" id="targetReel2">⭐</div>
+        <div class="reel" id="targetReel3">💎</div>
+      </div>
+
+      <button class="spin-btn" id="targetBtn" onclick="targetSpin()">
+        ИСКАТЬ
+      </button>
+
+      <div class="result" id="targetResult"></div>
+
+    </div>
+
+  </section>
+
+  <!-- PROFILE -->
+  <section id="profile" class="screen">
+
+    <button class="back" onclick="goHome()">← Назад</button>
+
+    <div cl
+
+
+ass="card profile">
+
+      <div class="avatar" id="avatar">L</div>
+
+      <div class="profile-name" id="profileName">Игрок</div>
+      <div class="profile-level">
+        Уровень <b id="profileLevel">1</b>
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar" id="xpBar"></div>
+      </div>
+
+      <div class="xp-text">
+        <span id="xpCurrent">0 XP</span>
+        <span id="xpNext">100 XP</span>
+      </div>
+
+      <div class="profile-grid">
+
+        <div class="profile-stat">
+          <strong id="profileScore">0</strong>
+          <span>Всего очков</span>
+        </div>
+
+        <div class="profile-stat">
+          <strong id="profileBest">0</strong>
+          <span>Рекорд</span>
+        </div>
+
+        <div class="profile-stat">
+          <strong id="profileGames">0</strong>
+          <span>Игр</span>
+        </div>
+
+        <div class="profile-stat">
+          <strong id="profileCombo">0</strong>
+          <span>Макс. серия</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ACHIEVEMENTS -->
+  <section id="achievements" class="screen">
+
+    <button class="back" onclick="goHome()">← Назад</button>
+
+    <div class="card">
+
+      <div class="game-title">
+        <h2>🏆 Достижения</h2>
+        <p>Собери все достижения LuckyShack</p>
+      </div>
+
+      <div class="list" id="achievementList"></div>
+
+    </div>
+
+  </section>
 
   <div class="footer">
-    LuckyShack — аркадная игра без ставок и денежных операций
+    LuckyShack Arcade
+
+    Без ставок, покупок и денежных операций.
   </div>
 
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-"use strict";
 
-/* =========================
-   TELEGRAM
-========================= */
+const tg = window.Telegram && window.Telegram.WebApp
+  ? window.Telegram.WebApp
+  : null;
 
-const tg =
-  window.Telegram &&
-  window.Telegram.WebApp
-    ? window.Telegram.WebApp
-    : null;
-
-if (tg) {
+if(tg){
   tg.ready();
   tg.expand();
 }
 
-/* =========================
-   SYMBOLS
-========================= */
-
 const symbols = [
   "🍒",
   "🍋",
-  "🍉",
+  "🍊",
   "⭐",
   "💎",
-  "🔔"
+  "🍀",
+  "🔔",
+  "7️⃣"
 ];
 
-/* =========================
-   DATA
-========================= */
+let data = JSON.parse(
+  localStorage.getItem("luckyshack_data") || "null"
+) || {
 
-let score =
-  Number(localStorage.getItem("ls_score")) || 0;
+  score:0,
+  best:0,
+  streak:0,
+  maxStreak:0,
+  games:0,
 
-let best =
-  Number(localStorage.getItem("ls_best")) || 0;
+  xp:0,
+  level:1,
 
-let streak =
-  Number(localStorage.getItem("ls_streak")) || 0;
+  achievements:[],
 
-let xp =
-  Number(localStorage.getItem("ls_xp")) || 0;
+  dailyDate:"",
+  dailyClaimed:false
 
-let level =
-  Number(localStorage.getItem("ls_level")) || 1;
+};
 
-/* =========================
-   ELEMENTS
-========================= */
-
-const scoreEl =
-  document.getElementById("score");
-
-const bestEl =
-  document.getElementById("best");
-
-const streakEl =
-  document.getElementById("streak");
-
-const xpEl =
-  document.getElementById("xp");
-
-const levelEl =
-  document.getElementById("level");
-
-const xpFill =
-  document.getElementById("xpFill");
-
-const message =
-  document.getElementById("message");
-
-const reward =
-  document.getElementById("reward");
-
-const playButton =
-  document.getElementById("play");
-
-const reels = [
-  document.getElementById("reel1"),
-  document.getElementById("reel2"),
-  document.getElementById("reel3")
-];
-
-/* =========================
-   SAVE
-========================= */
-
-function save() {
+function save(){
 
   localStorage.setItem(
-    "ls_score",
-    String(score)
+    "luckyshack_data",
+    JSON.stringify(data)
   );
 
-  localStorage.setItem(
-    "ls_best",
-    String(best)
-  );
-
-  localStorage.setItem(
-    "ls_streak",
-    String(streak)
-  );
-
-  localStorage.setItem(
-    "ls_xp",
-    String(xp)
-  );
-
-  localStorage.setItem(
-    "ls_level",
-    String(level)
-  );
+  updateUI();
 }
 
-/* =========================
-   UPDATE UI
-========================= */
+function vibrate(type="light"){
 
-function updateUI() {
+  if(!tg || !tg.HapticFeedback) return;
 
-  scoreEl.textContent = score;
-  bestEl.textContent = best;
-  streakEl.textContent = streak;
+  try{
 
-  xpEl.textContent = xp;
-  levelEl.textContent = level;
+    if(type==="success"){
+      tg.HapticFeedback.notificationOccurred("success");
+    }
 
-  const xpNeeded =
-    level * 100;
+    else if(type==="error"){
+      tg.HapticFeedback.notificationOccurred("error");
+    }
 
-  const progress =
-    Math.min(
-      (xp / xpNeeded) * 100,
-      100
-    );
+    else{
+      tg.HapticFeedback.impactOccurred("light");
+    }
 
-  xpFill.style.width =
-    progress + "%";
+  }catch(e){}
 
-  renderAchievements();
 }
 
-/* =========================
-   RANDOM SYMBOL
-========================= */
-
-function randomSymbol() {
+function randomSymbol(){
 
   return symbols[
-    Math.floor(
-      Math.random() * symbols.length
-    )
-  ];
-}
-
-/* =========================
-   WAIT
-========================= */
-
-function sleep(ms) {
-
-  return new Promise(
-    resolve => setTimeout(resolve, ms)
-  );
-}
-
-/* =========================
-   VIBRATION
-========================= */
-
-function vibrate() {
-
-  try {
-
-    if (
-      tg &&
-      tg.HapticFeedback
-    ) {
-
-      tg.HapticFeedback
-        .impactOccurred("medium");
-
-      return;
-    }
-
-    if (navigator.vibrate) {
-      navigator.vibrate(40);
-    }
-
-  } catch (e) {}
-}
-
-function successVibrate() {
-
-  try {
-
-    if (
-      tg &&
-      tg.HapticFeedback
-    ) {
-
-      tg.HapticFeedback
-        .notificationOccurred("success");
-
-      return;
-    }
-
-    if (navigator.vibrate) {
-
-      navigator.vibrate([
-        60,
-        50,
-        100
-      ]);
-
-    }
-
-  } catch (e) {}
-}
-
-/* =========================
-   XP
-========================= */
-
-function addXP(amount) {
-
-  xp += amount;
-
-  let leveledUp = false;
-
-  while (
-    xp >= level * 100
-  ) {
-
-    xp -= level * 100;
-    level++;
-
-    leveledUp = true;
-  }
-
-  if (leveledUp) {
-
-    message.textContent =
-      "🎉 Новый уровень!";
-
-    successVibrate();
-  }
-}
-
-/* =========================
-   PLAY
-========================= */
-
-async function playGame() {
-
-  if (playButton.disabled) {
-    return;
-  }
-
-  playButton.disabled = true;
-
-  message.textContent =
-    "🎲 Играем...";
-
-  reward.textContent = "";
-
-  reels.forEach(
-    reel =>
-      reel.classList.remove("win")
-  );
-
-  /* animation */
-
-  for (
-    let i = 0;
-    i < 12;
-    i++
-  ) {
-
-    reels.forEach(
-      reel => {
-        reel.textContent =
-          randomSymbol();
-      }
-    );
-
-    await sleep(65);
-  }
-
-  /* final result */
-
-  const result = [
-    randomSymbol(),
-    randomSymbol(),
-    randomSymbol()
+    Math.floor(Math.random()*symbols.length)
   ];
 
-  reels.forEach(
-    (reel, index) => {
+}
 
-      reel.textContent =
-        result[index];
+function openScreen(id){
 
-    }
-  );
+  document
+    .querySelectorAll(".screen")
+    .forEach(el=>el.classList.remove("active"));
 
-  const unique =
-    new Set(result);
+  const screen = document.getElementById(id);
 
-  let points = 0;
-
-  /* three equal */
-
-  if (unique.size === 1) {
-
-    points = 100;
-
-    streak++;
-
-    message.textContent =
-      "🔥 ИДЕАЛЬНАЯ КОМБИНАЦИЯ!";
-
-    reward.textContent =
-      "+100 очков";
-
-    reels.forEach(
-      reel =>
-        reel.classList.add("win")
-    );
-
-    addXP(35);
-
-    successVibrate();
-
+  if(screen){
+    screen.classList.add("active");
   }
-
-  /* two equal */
-
-  else if (unique.size === 2) {
-
-    points = 30;
-
-    streak++;
-
-    message.textContent =
-      "✨ Хорошая комбинация!";
-
-    reward.textContent =
-      "+30 очков";
-
-    addXP(15);
-
-    vibrate();
-
-  }
-
-  /* no match */
-
-  else {
-
-    points = 5;
-
-    streak = 0;
-
-    message.textContent =
-      "🙂 Попробуй ещё!";
-
-    reward.textContent =
-      "+5 очков";
-
-    addXP(5);
-
-    vibrate();
-
-  }
-
-  score += points;
-
-  /* record */
-
-  if (score > best) {
-
-    best = score;
-
-    message.textContent =
-      "🏆 НОВЫЙ РЕКОРД!";
-
-    reward.textContent =
-      "+" + points + " очков";
-  }
-
-  save();
 
   updateUI();
 
-  await sleep(250);
+  window.scrollTo(0,0);
 
-  playButton.disabled = false;
+  vibrate("light");
+
 }
 
-/* =========================
-   ACHIEVEMENTS
-========================= */
+function goHome(){
+
+  openScreen("home");
+
+}
+
+function toast(text){
+
+  const el = document.getElementById("toast");
+
+  el.textContent = text;
+  el.classList.add("show");
+
+  setTimeout(()=>{
+    el.classList.remove("show");
+  },1800);
+
+}
+
+function addXP(amount){
+
+  data.xp += amount;
+
+  let leveled = false;
+
+  while(data.xp >= data.level * 100){
+
+    data.xp -= data.level * 100;
+
+    data.level++;
+
+    leveled = true;
+
+  }
+
+  if(leveled){
+
+    toast("🎉 Новый уровень: "+data.level);
+
+    vibrate("success");
+
+  }
+
+}
+
+function addScore(amount){
+
+  data.score += amount;
+
+  if(data.score > data.best){
+    data.best = data.score;
+  }
+
+}
+
+function updateUI(){
+
+  const user =
+    tg &&
+    tg.initDataUnsafe &&
+    tg.initDataUnsafe.user
+      ? tg.initDataUnsafe.user
+      : null;
+
+  const name =
+    user
+      ? (
+          user.first_name ||
+          user.username ||
+          "Игрок"
+        )
+      : "Игрок";
+
+  document.getElementById("userName").textContent =
+    name;
+
+  document.getElementById("profileName").textContent =
+    name;
+
+  document.getElementById("avatar").textContent =
+    name.charAt(0).toUpperCase();
+
+  document.getElementById("homeSco
+
+
+re").textContent =
+    data.score;
+
+  document.getElementById("homeBest").textContent =
+    data.best;
+
+  document.getElementById("homeLevel").textContent =
+    data.level;
+
+  document.getElementById("profileLevel").textContent =
+    data.level;
+
+  document.getElementById("profileScore").textContent =
+    data.score;
+
+  document.getElementById("profileBest").textContent =
+    data.best;
+
+  document.getElementById("profileGames").textContent =
+    data.games;
+
+  document.getElementById("profileCombo").textContent =
+    data.maxStreak;
+
+  const need = data.level * 100;
+
+  const percent =
+    Math.min(
+      100,
+      (data.xp / need) * 100
+    );
+
+  document.getElementById("xpBar").style.width =
+    percent+"%";
+
+  document.getElementById("xpCurrent").textContent =
+    data.xp+" XP";
+
+  document.getElementById("xpNext").textContent =
+    need+" XP";
+
+  updateDaily();
+
+  updateAchievements();
+
+}
+
+function today(){
+
+  const d = new Date();
+
+  return d.getFullYear()+"-"+
+    String(d.getMonth()+1).padStart(2,"0")+"-"+
+    String(d.getDate()).padStart(2,"0");
+
+}
+
+function updateDaily(){
+
+  const current = today();
+
+  if(data.dailyDate !== current){
+
+    data.dailyDate = current;
+    data.dailyClaimed = false;
+
+    localStorage.setItem(
+      "luckyshack_data",
+      JSON.stringify(data)
+    );
+
+  }
+
+  const btn =
+    document.getElementById("dailyBtn");
+
+  const text =
+    document.getElementById("dailyText");
+
+  if(data.dailyClaimed){
+
+    btn.disabled = true;
+    btn.textContent = "Получено ✓";
+
+    text.textContent =
+      "Бонус уже получен сегодня. Возвращайся завтра!";
+
+  }
+
+  else{
+
+    btn.disabled = false;
+    btn.textContent = "Получить +50 XP";
+
+    text.textContent =
+      "Сегодня можно получить бонус опыта.";
+
+  }
+
+}
+
+function claimDaily(){
+
+  if(data.dailyClaimed){
+
+    toast("🎁 Бонус уже получен");
+
+    return;
+
+  }
+
+  data.dailyClaimed = true;
+
+  addXP(50);
+
+  save();
+
+  toast("🎁 +50 XP");
+
+  vibrate("success");
+
+}
+
+function classicSpin(){
+
+  const btn =
+    document.getElementById("classicBtn");
+
+  if(btn.disabled) return;
+
+  btn.disabled = true;
+
+  const reels = [
+    document.getElementById("reel1"),
+    document.getElementById("reel2"),
+    document.getElementById("reel3")
+  ];
+
+  reels.forEach(r=>{
+    r.classList.add("spin");
+  });
+
+  let ticks = 0;
+
+  const interval = setInterval(()=>{
+
+    reels.forEach(r=>{
+      r.textContent = randomSymbol();
+    });
+
+    ticks++;
+
+    if(ticks >= 12){
+
+      clearInterval(interval);
+
+      reels.forEach(r=>{
+        r.classList.remove("spin");
+      });
+
+      const result = [
+        randomSymbol(),
+        randomSymbol(),
+        randomSymbol()
+      ];
+
+      reels.forEach((r,i)=>{
+        r.textContent = result[i];
+      });
+
+      finishClassic(result);
+
+    }
+
+  },90);
+
+}
+
+function finishClassic(result){
+
+  data.games++;
+
+  const same =
+    result[0]===result[1] &&
+    result[1]===result[2];
+
+  let points = 0;
+
+  if(same){
+
+    data.streak++;
+
+    points =
+      50 +
+      data.streak * 10;
+
+    if(data.streak > data.maxStreak){
+      data.maxStreak = data.streak;
+    }
+
+    addXP(20);
+
+    document.getElementById("classicResult").textContent =
+      "🎉 ТРИ ОДИНАКОВЫХ! +"+points+" очков";
+
+    toast("🔥 Отличная серия!");
+
+    vibrate("success");
+
+  }
+
+  else{
+
+    points = 5;
+
+    data.streak = 0;
+
+    addXP(5);
+
+    document.getElementById("classicResult").textContent =
+      "+5 очков. Попробуй ещё!";
+
+    vibrate("light");
+
+  }
+
+  addScore(points);
+
+  document.getElementById("classicScore").textContent =
+    data.score;
+
+  document.getElementById("classicStreak").textContent =
+    data.streak;
+
+  checkAchievements();
+
+  save();
+
+  setTimeout(()=>{
+
+    document.getElementById("classicBtn").disabled =
+      false;
+
+  },300);
+
+}
+
+let timeRunning = false;
+let timeLeft = 30;
+let timeScore = 0;
+let timeRounds = 0;
+let timeTimerInterval = null;
+
+function startTimeGame(){
+
+  timeRunning = true;
+
+  timeLeft = 30;
+
+  timeScore = 0;
+
+  timeRounds = 0;
+
+  document.get
+
+
+ElementById("timeTimer").textContent =
+    timeLeft;
+
+  document.getElementById("timeScore").textContent =
+    0;
+
+  document.getElementById("timeRounds").textContent =
+    0;
+
+  document.getElementById("timeResult").textContent =
+    "";
+
+  document.getElementById("timeBtn").textContent =
+    "КРУТИТЬ";
+
+  timeTimerInterval = setInterval(()=>{
+
+    timeLeft--;
+
+    document.getElementById("timeTimer").textContent =
+      timeLeft;
+
+    if(timeLeft <= 0){
+
+      endTimeGame();
+
+    }
+
+  },1000);
+
+}
+
+function endTimeGame(){
+
+  if(!timeRunning) return;
+
+  timeRunning = false;
+
+  clearInterval(timeTimerInterval);
+
+  timeTimerInterval = null;
+
+  data.score += timeScore;
+
+  if(data.score > data.best){
+    data.best = data.score;
+  }
+
+  data.games++;
+
+  addXP(
+    Math.max(
+      10,
+      Math.floor(timeScore/5)
+    )
+  );
+
+  document.getElementById("timeResult").textContent =
+    "⏰ Время! Результат: "+timeScore;
+
+  document.getElementById("timeBtn").textContent =
+    "НАЧАТЬ ЗАНОВО";
+
+  checkAchievements();
+
+  save();
+
+  vibrate("success");
+
+}
+
+function timeSpin(){
+
+  if(!timeRunning){
+
+    startTimeGame();
+
+    return;
+
+  }
+
+  if(timeLeft <= 0) return;
+
+  const reels = [
+    document.getElementById("timeReel1"),
+    document.getElementById("timeReel2"),
+    document.getElementById("timeReel3")
+  ];
+
+  reels.forEach(r=>{
+    r.classList.add("spin");
+    r.textContent = randomSymbol();
+  });
+
+  setTimeout(()=>{
+
+    const result = [
+      randomSymbol(),
+      randomSymbol(),
+      randomSymbol()
+    ];
+
+    reels.forEach((r,i)=>{
+      r.classList.remove("spin");
+      r.textContent = result[i];
+    });
+
+    const same =
+      result[0]===result[1] &&
+      result[1]===result[2];
+
+    const pair =
+      result[0]===result[1] ||
+      result[1]===result[2] ||
+      result[0]===result[2];
+
+    let points = 1;
+
+    if(same){
+
+      points = 30;
+
+      toast("💎 Тройка! +30");
+
+      vibrate("success");
+
+    }
+
+    else if(pair){
+
+      points = 8;
+
+    }
+
+    timeScore += points;
+
+    timeRounds++;
+
+    document.getElementById("timeScore").textContent =
+      timeScore;
+
+    document.getElementById("timeRounds").textContent =
+      timeRounds;
+
+  },180);
+
+}
+
+document.getElementById("timeBtn").addEventListener(
+  "click",
+  function(){
+
+    if(this.textContent==="НАЧАТЬ ЗАНОВО" && !timeRunning){
+
+      startTimeGame();
+
+    }
+
+  }
+);
+
+let targetHits = 0;
+let targetScore = 0;
+let target = "💎";
+
+function newTarget(){
+
+  target =
+    randomSymbol();
+
+  document.getElementById("targetSymbol").textContent =
+    target;
+
+}
+
+function targetSpin(){
+
+  const btn =
+    document.getElementById("targetBtn");
+
+  if(btn.disabled) return;
+
+  btn.disabled = true;
+
+  const reels = [
+    document.getElementById("targetReel1"),
+    document.getElementById("targetReel2"),
+    document.getElementById("targetReel3")
+  ];
+
+  reels.forEach(r=>{
+    r.classList.add("spin");
+  });
+
+  let ticks = 0;
+
+  const interval = setInterval(()=>{
+
+    reels.forEach(r=>{
+      r.textContent = randomSymbol();
+    });
+
+    ticks++;
+
+    if(ticks>=10){
+
+      clearInterval(interval);
+
+      reels.forEach(r=>{
+        r.classList.remove("spin");
+      });
+
+      const result = [
+        randomSymbol(),
+        randomSymbol(),
+        randomSymbol()
+      ];
+
+      reels.forEach((r,i)=>{
+        r.textContent = result[i];
+      });
+
+      let hit = 0;
+
+      result.forEach(s=>{
+
+        if(s===target){
+          hit++;
+        }
+
+      });
+
+      if(hit>0){
+
+        targetHits += hit;
+
+        const points = hit * 15;
+
+        targetScore += points;
+
+        addScore(points);
+
+        addXP(hit*10);
+
+        document.getElementById("targetResult").textContent =
+          "🎯 Попадание! +"+points+" очков";
+
+        vibrate("success");
+
+      }
+
+      else{
+
+        document.getElementById("targetResult").textContent =
+          "Не попал. Цель всё ещё "+target;
+
+        vibrate("light");
+
+      }
+
+      data.games++;
+
+      if(targetHits>=3){
+
+        toast("🏆 Цель выполнена
+
+
+!");
+
+        targetHits = 0;
+
+        targetScore = 0;
+
+        newTarget();
+
+      }
+
+      document.getElementById("targetHits").textContent =
+        targetHits;
+
+      document.getElementById("targetScore").textContent =
+        targetScore;
+
+      checkAchievements();
+
+      save();
+
+      setTimeout(()=>{
+
+        btn.disabled = false;
+
+      },250);
+
+    }
+
+  },90);
+
+}
 
 const achievementData = [
 
   {
-    icon: "🎮",
-    name: "Первый запуск",
-    desc: "Сыграть первый раунд",
-    check: () => score > 0
+    id:"first",
+    icon:"🚀",
+    title:"Первый запуск",
+    desc:"Сыграй первую игру"
   },
 
   {
-    icon: "🔥",
-    name: "Комбо x5",
-    desc: "Получить серию из 5",
-    check: () => streak >= 5
+    id:"combo5",
+    icon:"🔥",
+    title:"На волне",
+    desc:"Собери серию x5"
   },
 
   {
-    icon: "💎",
-    name: "100 очков",
-    desc: "Набрать 100 очков",
-    check: () => score >= 100
+    id:"score100",
+    icon:"💯",
+    title:"Первая сотня",
+    desc:"Набери 100 очков"
   },
 
   {
-    icon: "🏆",
-    name: "Рекордсмен",
-    desc: "Набрать 500 очков",
-    check: () => best >= 500
+    id:"best500",
+    icon:"👑",
+    title:"Большой рекорд",
+    desc:"Установи рекорд 500 очков"
   },
 
   {
-    icon: "🚀",
-    name: "Уровень 5",
-    desc: "Достичь 5 уровня",
-    check: () => level >= 5
+    id:"level5",
+    icon:"⭐",
+    title:"Опытный игрок",
+    desc:"Достигни 5 уровня"
+  },
+
+  {
+    id:"games10",
+    icon:"🎮",
+    title:"Игрок",
+    desc:"Сыграй 10 игр"
   }
 
 ];
 
-function renderAchievements() {
+function hasAchievement(id){
+
+  return data.achievements.includes(id);
+
+}
+
+function unlock(id){
+
+  if(hasAchievement(id)) return;
+
+  data.achievements.push(id);
+
+  const item =
+    achievementData.find(a=>a.id===id);
+
+  if(item){
+
+    toast(
+      "🏆 "+item.title
+    );
+
+  }
+
+  addXP(25);
+
+  vibrate("success");
+
+}
+
+function checkAchievements(){
+
+  if(data.games>=1){
+    unlock("first");
+  }
+
+  if(data.maxStreak>=5){
+    unlock("combo5");
+  }
+
+  if(data.score>=100){
+    unlock("score100");
+  }
+
+  if(data.best>=500){
+    unlock("best500");
+  }
+
+  if(data.level>=5){
+    unlock("level5");
+  }
+
+  if(data.games>=10){
+    unlock("games10");
+  }
+
+  localStorage.setItem(
+    "luckyshack_data",
+    JSON.stringify(data)
+  );
+
+}
+
+function updateAchievements(){
 
   const container =
-    document.getElementById(
-      "achievements"
-    );
+    document.getElementById("achievementList");
 
   container.innerHTML = "";
 
-  achievementData.forEach(
-    item => {
+  achievementData.forEach(item=>{
 
-      const unlocked =
-        item.check();
+    const unlocked =
+      hasAchievement(item.id);
 
-      const row =
-        document.createElement(
-          "div"
-        );
+    const div =
+      document.createElement("div");
 
-      row.className =
-        "achievement" +
-        (
-          unlocked
-            ? ""
-            : " locked"
-        );
-
-      row.innerHTML = `
-
-        <div class="achievement-icon">
-          ${unlocked ? item.icon : "🔒"}
-        </div>
-
-        <div class="achievement-text">
-
-          <div class="achievement-name">
-            ${item.name}
-          </div>
-
-          <div class="achievement-desc">
-            ${item.desc}
-          </div>
-
-        </div>
-
-      `;
-
-      container.appendChild(row);
-
-    }
-  );
-}
-
-/* =========================
-   DAILY BONUS
-========================= */
-
-function getTodayKey() {
-
-  const now =
-    new Date();
-
-  const year =
-    now.getFullYear();
-
-  const month =
-    String(
-      now.getMonth() + 1
-    ).padStart(2, "0");
-
-  const day =
-    String(
-      now.getDate()
-    ).padStart(2, "0");
-
-  return (
-    year +
-    "-" +
-    month +
-    "-" +
-    day
-  );
-}
-
-function setupDaily() {
-
-  const button =
-    document.getElementById(
-      "dailyButton"
-    );
-
-  const today =
-    getTodayKey();
-
-  const lastDaily =
-    localStorage.getItem(
-      "ls_daily"
-    );
-
-  if (
-    lastDaily === today
-  ) {
-
-    button.disabled = true;
-
-    button.textContent =
-      "Получено";
-  }
-
-  button.addEventListener(
-    "click",
-    () => {
-
-      const current =
-        getTodayKey();
-
-      if (
-        localStorage.getItem(
-          "ls_daily") === current
-      ) {
-        return;
-      }
-
-      localStorage.setItem(
-        "ls_daily",
-        current
+    div.className =
+      "list-item "+(
+        unlocked
+          ? ""
+          : "locked"
       );
 
-      score += 25;
+    div.innerHTML = `
 
-      addXP(20);
+      <div class="achievement-icon">
+        ${unlocked ? item.icon : "🔒"}
+      </div>
 
-      save();
+      <div class="list-info">
 
-      updateUI();
+        <div class="list-title">
+          ${item.title}
+        </div>
 
-      button.disabled = true;
+        <div class="list-desc">
+          ${item.desc}
+        </div>
 
-      button.textContent =
-        "Получено";
+      </div>
 
-      message.textContent =
-        "🎁 Ежедневный бонус!";
+      <div>
+        ${unlocked ? "✓" : ""}
+      </div>
 
-      reward.textContent =
-        "+25 очков";
+    `;
 
-      successVibrate();
+    container.appendChild(div);
 
-    }
-  );
+  });
+
 }
 
-/* =========================
-   TELEGRAM USER
-========================= */
+function resetTimeIfNeeded(){
 
-function setupTelegramUser() {
+  if(timeRunning && timeLeft<=0){
 
-  if (
-    !tg ||
-    !tg.initDataUnsafe
-  ) {
-    return;
+    endTimeGame();
+
   }
 
-  const user =
-    tg.initDataUnsafe.user;
-
-  if (!user) {
-    return;
-  }
-
-  let name =
-    user.first_name ||
-    "Игрок";
-
-  if (name.length > 14) {
-
-    name =
-      name.slice(0, 14) +
-      "…";
-  }
-
-  document.getElementById(
-    "username"
-  ).textContent =
-    "👤 " + name;
 }
 
-/* =========================
-   START
-========================= */
-
-playButton.addEventListener(
-  "click",
-  playGame
-);
-
-setupTelegramUser();
-
-setupDaily();
+newTarget();
 
 updateUI();
+
+checkAchievements();
 
 </script>
 
