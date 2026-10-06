@@ -1,764 +1,999 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>LuckyShack</title>
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<style>
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-
-body{
-  margin:0;
-  min-height:100vh;
-  font-family:Arial,Helvetica,sans-serif;
-  color:#fff;
-  background:
-    radial-gradient(circle at top,#452080 0%,#211044 42%,#100720 100%);
-  overflow-x:hidden;
-}
-
-button{
-  border:0;
-  font:inherit;
-  cursor:pointer;
-}
-
-.app{
-  width:100%;
-  max-width:520px;
-  min-height:100vh;
-  margin:auto;
-  padding:18px 16px 30px;
-}
-
-.header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:18px;
-}
-
-.logo{
-  font-size:25px;
-  font-weight:900;
-  letter-spacing:.5px;
-}
-
-.logo span{
-  color:#ff4fd8;
-}
-
-.user{
-  max-width:170px;
-  padding:8px 12px;
-  border-radius:20px;
-  background:rgba(255,255,255,.1);
-  font-size:13px;
-  overflow:hidden;
-  white-space:nowrap;
-  text-overflow:ellipsis;
-}
-
-.screen{
-  display:none;
-}
-
-.screen.active{
-  display:block;
-}
-
-.card{
-  padding:18px;
-  margin-bottom:14px;
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:22px;
-  background:rgba(255,255,255,.08);
-  box-shadow:0 10px 35px rgba(0,0,0,.2);
-  backdrop-filter:blur(10px);
-}
-
-.hero{
-  text-align:center;
-  padding:25px 18px;
-}
-
-.hero h1{
-  margin:0 0 8px;
-  font-size:34px;
-}
-
-.hero p{
-  margin:0;
-  color:#c9bfe2;
-  line-height:1.45;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:9px;
-  margin-top:18px;
-}
-
-.stat{
-  padding:12px 6px;
-  border-radius:15px;
-  background:rgba(0,0,0,.2);
-  text-align:center;
-}
-
-.stat-value{
-  font-size:21px;
-  font-weight:800;
-}
-
-.stat-label{
-  margin-top:4px;
-  color:#aaa0c2;
-  font-size:11px;
-}
-
-.menu{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-
-.menu-btn{
-  min-height:95px;
-  padding:14px;
-  border-radius:20px;
-  color:#fff;
-  background:linear-gradient(145deg,#7938d7,#4a1c9a);
-  box-shadow:0 8px 20px rgba(87,34,173,.25);
-  transition:.15s;
-}
-
-.menu-btn:active{
-  transform:scale(.96);
-}
-
-.menu-icon{
-  display:block;
-  margin-bottom:7px;
-  font-size:28px;
-}
-
-.menu-title{
-  font-weight:800;
-  font-size:15px;
-}
-
-.menu-sub{
-  margin-top:4px;
-  color:#d8ccef;
-  font-size:11px;
-}
-
-.back{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  margin-bottom:14px;
-  padding:8px 12px;
-  border-radius:12px;
-  color:#dcd1ef;
-  background:rgba(255,255,255,.08);
-}
-
-.game-title{
-  text-align:center;
-  margin-bottom:12px;
-}
-
-.game-title h2{
-  margin:0;
-  font-size:26px;
-}
-
-.game-title p{
-  margin:6px 0 0;
-  color:#aaa0c2;
-  font-size:13px;
-}
-
-.reels{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:9px;
-  margin:20px 0;
-}
-
-.reel{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:105px;
-  border-radius:20px;
-  background:rgba(255,255,255,.1);
-  border:1px solid rgba(255,255,255,.12);
-  font-size:48px;
-  box-shadow:inset 0 0 25px rgba(255,255,255,.03);
-}
-
-.reel.spin{
-  animation:bounce .12s linear infinite;
-}
-
-@keyframes bounce{
-  0%{transform:translateY(-3px)}
-  50%{transform:translateY(3px)}
-  100%{transform:translateY(-3px)}
-}
-
-.spin-btn{
-  width:100%;
-  padding:17px;
-  border-radius:18px;
-  color:#fff;
-  font-size:19px;
-  font-weight:900;
-  background:linear-gradient(135deg,#ff42cf,#ff6a9c);
-  box-shadow:0 8px 25px rgba(255,70,185,.28);
-}
-
-.spin-btn:active{
-  transform:scale(.98);
-}
-
-.spin-btn:disabled{
-  opacity:.55;
-}
-
-.result{
-  min-height:27px;
-  margin:15px 0 4px;
-  text-align:center;
-  font-size:17px;
-  font-weight:800;
-}
-
-.progress{
-  height:9px;
-  margin-top:8px;
-  overflow:hidden;
-  border-radius:10px;
-  background:rgba(255,255,255,.1);
-}
-
-.progress-bar{
-  height:100%;
-  width:0%;
-  border-radius:10px;
-  background:linear-gradient(90deg,#ff44ce,#8c52ff);
-  transition:.3s;
-}
-
-.xp-text{
-  display:flex;
-  justify-content:space-between;
-  margin-top:7
-
-
-px;
-  color:#aaa0c2;
-  font-size:11px;
-}
-
-.mode-info{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:12px;
-  color:#d8ccef;
-  font-size:13px;
-}
-
-.target{
-  padding:12px;
-  margin-bottom:15px;
-  border-radius:15px;
-  text-align:center;
-  background:rgba(255,255,255,.08);
-}
-
-.target-symbol{
-  margin-top:5px;
-  font-size:38px;
-}
-
-.timer{
-  text-align:center;
-  margin:5px 0 12px;
-  font-size:32px;
-  font-weight:900;
-}
-
-.list{
-  display:flex;
-  flex-direction:column;
-  gap:9px;
-}
-
-.list-item{
-  display:flex;
-  align-items:center;
-  gap:11px;
-  padding:12px;
-  border-radius:15px;
-  background:rgba(255,255,255,.07);
-}
-
-.achievement-icon{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:42px;
-  height:42px;
-  flex:none;
-  border-radius:13px;
-  background:rgba(255,255,255,.1);
-  font-size:22px;
-}
-
-.list-info{
-  flex:1;
-}
-
-.list-title{
-  font-weight:800;
-  font-size:14px;
-}
-
-.list-desc{
-  margin-top:3px;
-  color:#aaa0c2;
-  font-size:11px;
-}
-
-.locked{
-  opacity:.42;
-}
-
-.profile{
-  text-align:center;
-}
-
-.avatar{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:85px;
-  height:85px;
-  margin:0 auto 12px;
-  border-radius:50%;
-  font-size:35px;
-  font-weight:900;
-  background:linear-gradient(135deg,#ff42cf,#7040e8);
-}
-
-.profile-name{
-  font-size:23px;
-  font-weight:900;
-}
-
-.profile-level{
-  margin-top:5px;
-  color:#bcb0d3;
-  font-size:13px;
-}
-
-.profile-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:18px;
-}
-
-.profile-stat{
-  padding:15px;
-  border-radius:16px;
-  background:rgba(255,255,255,.07);
-}
-
-.profile-stat strong{
-  display:block;
-  font-size:21px;
-}
-
-.profile-stat span{
-  color:#aaa0c2;
-  font-size:11px;
-}
-
-.daily{
-  text-align:center;
-}
-
-.daily-icon{
-  font-size:38px;
-}
-
-.daily h3{
-  margin:7px 0;
-}
-
-.daily p{
-  margin:0 0 13px;
-  color:#aaa0c2;
-  font-size:13px;
-}
-
-.small-btn{
-  padding:11px 18px;
-  border-radius:13px;
-  color:#fff;
-  background:#6934bd;
-  font-weight:700;
-}
-
-.small-btn:disabled{
-  opacity:.45;
-}
-
-.footer{
-  margin-top:20px;
-  text-align:center;
-  color:#726985;
-  font-size:10px;
-  line-height:1.5;
-}
-
-.toast{
-  position:fixed;
-  left:50%;
-  bottom:22px;
-  z-index:100;
-  width:max-content;
-  max-width:90%;
-  padding:12px 17px;
-  border-radius:14px;
-  background:#241536;
-  box-shadow:0 8px 30px rgba(0,0,0,.35);
-  transform:translate(-50%,20px);
-  opacity:0;
-  pointer-events:none;
-  transition:.25s;
-  font-size:13px;
-}
-
-.toast.show{
-  transform:translate(-50%,0);
-  opacity:1;
-}
-</style>
-</head>
-
-<body>
-
-<div class="app">
-
-  <div class="header">
-    <div class="logo">Lucky<span>Shack</span> 🎮</div>
-    <div class="user" id="userName">Игрок</div>
-  </div>
-
-  <!-- HOME -->
-  <section id="home" class="screen active">
-
-    <div class="card hero">
-      <h1>LuckyShack</h1>
-      <p>
-        Аркадная игра с символами, уровнями,
-        достижениями и режимами.
-      </p>
-
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-value" id="homeScore">0</div>
-          <div class="stat-label">Очки</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-value" id="homeBest">0</div>
-          <div class="stat-label">Рекорд</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-value" id="homeLevel">1</div>
-          <div class="stat-label">Уровень</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="menu">
-
-      <button class="menu-btn" onclick="openScreen('classic')">
-        <span class="menu-icon">🎰</span>
-        <div class="menu-title">Классика</div>
-        <div class="menu-sub">Собери одинаковые</div>
-      </button>
-
-      <button class="menu-btn" onclick="openScreen('time')">
-        <span class="menu-icon">⏱️</span>
-        <div class="menu-title">На время</div>
-        <div class="menu-sub">30 секунд</div>
-      </button>
-
-      <button class="menu-btn" onclick="openScreen('target')">
-        <span class="menu-icon">🎯</span>
-        <div class="menu-
-
-
-title">Цель</div>
-        <div class="menu-sub">Лови нужный символ</div>
-      </button>
-
-      <button class="menu-btn" onclick="openScreen('profile')">
-        <span class="menu-icon">👤</span>
-        <div class="menu-title">Профиль</div>
-        <div class="menu-sub">Статистика игрока</div>
-      </button>
-
-      <button class="menu-btn" onclick="openScreen('achievements')">
-        <span class="menu-icon">🏆</span>
-        <div class="menu-title">Достижения</div>
-        <div class="menu-sub">Собери их все</div>
-      </button>
-
-      <button class="menu-btn" onclick="claimDaily()">
-        <span class="menu-icon">🎁</span>
-        <div class="menu-title">Бонус дня</div>
-        <div class="menu-sub">Получить XP</div>
-      </button>
-
-    </div>
-
-    <div class="card daily" style="margin-top:14px;">
-      <div class="daily-icon">🎁</div>
-      <h3>Ежедневный бонус</h3>
-      <p id="dailyText">Сегодня можно получить бонус опыта.</p>
-      <button class="small-btn" id="dailyBtn" onclick="claimDaily()">
-        Получить +50 XP
-      </button>
-    </div>
-
-  </section>
-
-  <!-- CLASSIC -->
-  <section id="classic" class="screen">
-
-    <button class="back" onclick="goHome()">← Назад</button>
+<button
+      class="back-btn"
+      data-screen="home">
+      ← Назад
+    </button>
 
     <div class="card">
 
-      <div class="game-title">
-        <h2>🎰 Классика</h2>
-        <p>Три одинаковых символа дают больше очков</p>
+      <div class="game-head">
+
+        <h2>
+          ⏱️ На время
+        </h2>
+
+        <p>
+          Набери максимум очков за 30 секунд
+        </p>
+
+      </div>
+
+      <div
+        class="timer"
+        id="timeTimer">
+        30
       </div>
 
       <div class="mode-info">
-        <span>Очки: <b id="classicScore">0</b></span>
-        <span>Серия: <b id="classicStreak">0</b> 🔥</span>
+
+        <span>
+          Очки:
+          <b id="timeScore">
+            0
+          </b>
+        </span>
+
+        <span>
+          Раунды:
+          <b id="timeRounds">
+            0
+          </b>
+        </span>
+
       </div>
 
       <div class="reels">
-        <div class="reel" id="reel1">🍒</div>
-        <div class="reel" id="reel2">⭐</div>
-        <div class="reel" id="reel3">💎</div>
+
+        <div
+          class="reel"
+          id="timeReel1">
+          🍒
+        </div>
+
+        <div
+          class="reel"
+          id="timeReel2">
+          ⭐
+        </div>
+
+        <div
+          class="reel"
+          id="timeReel3">
+          💎
+        </div>
+
       </div>
 
-      <button class="spin-btn" id="classicBtn" onclick="classicSpin()">
-        КРУТИТЬ
-      </button>
-
-      <div class="result" id="classicResult"></div>
-
-    </div>
-
-    <div class="card">
-      <b>Как играть</b>
-      <p style="color:#aaa0c2;font-size:13px;line-height:1.5;">
-        Нажимай «Крутить» и попробуй собрать
-        одинаковые символы. Три одинаковых —
-        большой бонус к очкам и серии.
-      </p>
-    </div>
-
-  </section>
-
-  <!-- TIME -->
-  <section id="time" class="screen">
-
-    <button class="back" onclick="goHome()">← Назад</button>
-
-    <div class="card">
-
-      <div class="game-title">
-        <h2>⏱️ На время</h2>
-        <p>Набери как можно больше очков</p>
-      </div>
-
-      <div class="timer" id="timeTimer">30</div>
-
-      <div class="mode-info">
-        <span>Очки: <b id="timeScore">0</b></span>
-        <span>Раунд: <b id="timeRounds">0</b></span>
-      </div>
-
-      <div class="reels">
-        <div class="reel" id="timeReel1">🍒</div>
-        <div class="reel" id="timeReel2">⭐</div>
-        <div class="reel" id="timeReel3">💎</div>
-      </div>
-
-      <button class="spin-btn" id="timeBtn" onclick="timeSpin()">
+      <button
+        class="primary-btn"
+        id="timeSpin">
         НАЧАТЬ
       </button>
 
-      <div class="result" id="timeResult"></div>
+      <div
+        class="result"
+        id="timeResult">
+      </div>
 
     </div>
 
   </section>
 
-  <!-- TARGET -->
-  <section id="target" class="screen">
+  <!-- =========================
+       TARGET
+  ========================= -->
 
-    <button class="back" onclick="goHome()">← Назад</button>
+  <section
+    id="screen-target"
+    class="screen">
+
+    <button
+      class="back-btn"
+      data-screen="home">
+      ← Назад
+    </button>
 
     <div class="card">
 
-      <div class="game-title">
-        <h2>🎯 Цель</h2>
-        <p>Собери нужный символ</p>
+      <div class="game-head">
+
+        <h2>
+          🎯 Цель
+        </h2>
+
+        <p>
+          Найди нужный символ
+        </p>
+
       </div>
 
-      <div class="target">
-        Твоя цель:
-        <div class="target-symbol" id="targetSymbol">💎</div>
+      <div class="target-box">
+
+        <div class="target-label">
+          ТВОЯ ЦЕЛЬ
+        </div>
+
+        <div
+          class="target-symbol"
+          id="targetSymbol">
+          💎
+        </div>
+
       </div>
 
       <div class="mode-info">
-        <span>Попаданий: <b id="targetHits">0</b>/3</span>
-        <span>Очки: <b id="targetScore">0</b></span>
+
+        <span>
+          Попадания:
+          <b id="targetHits">
+            0
+          </b>
+          /3
+        </span>
+
+        <span>
+          Очки:
+          <b id="targetScore">
+            0
+          </b>
+        </span>
+
       </div>
 
       <div class="reels">
-        <div class="reel" id="targetReel1">🍒</div>
-        <div class="reel" id="targetReel2">⭐</div>
-        <div class="reel" id="targetReel3">💎</div>
+
+        <div
+          class="reel"
+          id="targetReel1">
+          🍒
+        </div>
+
+        <div
+          class="reel"
+          id="targetReel2">
+          ⭐
+        </div>
+
+        <div
+          class="reel"
+          id="targetReel3">
+          💎
+        </div>
+
       </div>
 
-      <button class="spin-btn" id="targetBtn" onclick="targetSpin()">
+      <button
+        class="primary-btn"
+        id="targetSpin">
         ИСКАТЬ
       </button>
 
-      <div class="result" id="targetResult"></div>
+      <div
+        class="result"
+        id="targetResult">
+      </div>
 
     </div>
 
   </section>
 
-  <!-- PROFILE -->
-  <section id="profile" class="screen">
+  <!-- =========================
+       PROFILE
+  ========================= -->
 
-    <button class="back" onclick="goHome()">← Назад</button>
+  <section
+    id="screen-profile"
+    class="screen">
 
-    <div cl
+    <button
+      class="back-btn"
+      data-screen="home">
+      ← Назад
+    </button>
 
+    <div class="card profile">
 
-ass="card profile">
+      <div
+        class="avatar"
+        id="profileAvatar">
+        L
+      </div>
 
-      <div class="avatar" id="avatar">L</div>
+      <div
+        class="profile-name"
+        id="profileName">
+        Игрок
+      </div>
 
-      <div class="profile-name" id="profileName">Игрок</div>
+      <div
+        id="ownerTitle"
+        class="owner-title"
+        style="display:none;">
+        OWNER
+      </div>
+
       <div class="profile-level">
-        Уровень <b id="profileLevel">1</b>
+
+        LEVEL
+        <b id="profileLevel">
+          1
+        </b>
+
       </div>
 
-      <div class="progress">
-        <div class="progress-bar" id="xpBar"></div>
-      </div>
+      <div class="xp-row">
 
-      <div class="xp-text">
-        <span id="xpCurrent">0 XP</span>
-        <span id="xpNext">100 XP</span>
+        <div class="xp-top">
+
+          <span>
+            Опыт
+          </span>
+
+          <span id="profileXP">
+            0 / 100 XP
+          </span>
+
+        </div>
+
+        <div class="progress">
+
+          <div
+            class="progress-bar"
+            id="profileXPBar">
+          </div>
+
+        </div>
+
       </div>
 
       <div class="profile-grid">
 
         <div class="profile-stat">
-          <strong id="profileScore">0</strong>
-          <span>Всего очков</span>
+
+          <strong id="profileScore">
+            0
+          </strong>
+
+          <span>
+            Всего очков
+          </span>
+
         </div>
 
         <div class="profile-stat">
-          <strong id="profileBest">0</strong>
-          <span>Рекорд</span>
+
+          <strong id="profileBest">
+            0
+          </strong>
+
+          <span>
+            Рекорд
+          </span>
+
+        </div>
+
+        <div class
+
+
+="profile-stat">
+
+          <strong id="profileGames">
+            0
+          </strong>
+
+          <span>
+            Игр
+          </span>
+
         </div>
 
         <div class="profile-stat">
-          <strong id="profileGames">0</strong>
-          <span>Игр</span>
-        </div>
 
-        <div class="profile-stat">
-          <strong id="profileCombo">0</strong>
-          <span>Макс. серия</span>
+          <strong id="profileCombo">
+            0
+          </strong>
+
+          <span>
+            Макс. серия
+          </span>
+
         </div>
 
       </div>
 
     </div>
 
+    <div class="card">
+
+      <b>
+        ☁️ Синхронизация
+      </b>
+
+      <p
+        id="cloudStatus"
+        style="
+          color:#95899f;
+          font-size:11px;
+          line-height:1.5;
+        ">
+
+        Проверяем сохранение...
+
+      </p>
+
+    </div>
+
   </section>
 
-  <!-- ACHIEVEMENTS -->
-  <section id="achievements" class="screen">
+  <!-- =========================
+       ACHIEVEMENTS
+  ========================= -->
 
-    <button class="back" onclick="goHome()">← Назад</button>
+  <section
+    id="screen-achievements"
+    class="screen">
+
+    <button
+      class="back-btn"
+      data-screen="home">
+      ← Назад
+    </button>
 
     <div class="card">
 
-      <div class="game-title">
-        <h2>🏆 Достижения</h2>
-        <p>Собери все достижения LuckyShack</p>
+      <div class="game-head">
+
+        <h2>
+          🏆 Достижения
+        </h2>
+
+        <p>
+          Собери их все
+        </p>
+
       </div>
 
-      <div class="list" id="achievementList"></div>
+      <div
+        class="list"
+        id="achievementList">
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =========================
+       LEADERBOARD
+  ========================= -->
+
+  <section
+    id="screen-leaderboard"
+    class="screen">
+
+    <button
+      class="back-btn"
+      data-screen="home">
+      ← Назад
+    </button>
+
+    <div class="card">
+
+      <div class="leaderboard-title">
+
+        <h2>
+          🥇 Лидерборд
+        </h2>
+
+        <p>
+          Лучшие результаты LuckyShack
+        </p>
+
+      </div>
+
+      <div
+        id="leaderboardList">
+      </div>
+
+      <div
+        class="my-rank"
+        id="myRank">
+        Твоя позиция: —
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <b>
+        🌐 Общий рейтинг
+      </b>
+
+      <p
+        style="
+          margin-bottom:0;
+          color:#95899f;
+          font-size:11px;
+          line-height:1.5;
+        ">
+
+        Интерфейс общего рейтинга уже готов.
+        Для настоящего рейтинга между всеми
+        пользователями понадобится серверная
+        база данных.
+
+      </p>
 
     </div>
 
   </section>
 
   <div class="footer">
-    LuckyShack Arcade
+
+    LuckyShack Arcade 4.0
 
     Без ставок, покупок и денежных операций.
+
   </div>
 
 </div>
 
-<div class="toast" id="toast"></div>
+<div
+  class="toast"
+  id="toast">
+</div>
 
 <script>
 
-const tg = window.Telegram && window.Telegram.WebApp
-  ? window.Telegram.WebApp
-  : null;
+/* =====================================================
+   TELEGRAM
+===================================================== */
+
+const tg =
+  window.Telegram &&
+  window.Telegram.WebApp
+    ? window.Telegram.WebApp
+    : null;
 
 if(tg){
-  tg.ready();
-  tg.expand();
+
+  try{
+
+    tg.ready();
+    tg.expand();
+
+    if(tg.setHeaderColor){
+      tg.setHeaderColor("#120822");
+    }
+
+    if(tg.setBackgroundColor){
+      tg.setBackgroundColor("#08040f");
+    }
+
+  }catch(error){
+
+    console.log(
+      "Telegram init error:",
+      error
+    );
+
+  }
+
 }
 
+/* =====================================================
+   USER
+===================================================== */
+
+const telegramUser =
+  tg &&
+  tg.initDataUnsafe &&
+  tg.initDataUnsafe.user
+    ? tg.initDataUnsafe.user
+    : null;
+
+const username =
+  telegramUser &&
+  telegramUser.username
+    ? telegramUser.username.toLowerCase()
+    : "";
+
+const firstName =
+  telegramUser &&
+  telegramUser.first_name
+    ? telegramUser.first_name
+    : "Игрок";
+
+const isOwner =
+  username === "matwaysr";
+
+/* =====================================================
+   DATA
+===================================================== */
+
+const DEFAULT_DATA = {
+
+  score:0,
+
+  best:0,
+
+  streak:0,
+
+  maxStreak:0,
+
+  games:0,
+
+  xp:0,
+
+  level:1,
+
+  achievements:[],
+
+  dailyDate:"",
+
+  dailyClaimed:false
+
+};
+
+let data = null;
+
+/* =====================================================
+   LOCAL STORAGE
+===================================================== */
+
+function getLocalData(){
+
+  try{
+
+    const raw =
+      localStorage.getItem(
+        "luckyshack_v4"
+      );
+
+    if(!raw){
+
+      return {
+        ...DEFAULT_DATA
+      };
+
+    }
+
+    const parsed =
+
+
+JSON.parse(raw);
+
+    return {
+      ...DEFAULT_DATA,
+      ...parsed
+    };
+
+  }catch(error){
+
+    return {
+      ...DEFAULT_DATA
+    };
+
+  }
+
+}
+
+function saveLocal(){
+
+  try{
+
+    localStorage.setItem(
+      "luckyshack_v4",
+      JSON.stringify(data)
+    );
+
+  }catch(error){
+
+    console.log(
+      "Local save error:",
+      error
+    );
+
+  }
+
+}
+
+/* =====================================================
+   CLOUD STORAGE
+===================================================== */
+
+function cloudGet(){
+
+  return new Promise(
+    resolve => {
+
+      if(
+        !tg ||
+        !tg.CloudStorage
+      ){
+
+        resolve(null);
+        return;
+
+      }
+
+      tg.CloudStorage.getItem(
+        "luckyshack_data",
+
+        (error,value)=>{
+
+          if(error){
+
+            console.log(
+              "Cloud get error:",
+              error
+            );
+
+            resolve(null);
+            return;
+
+          }
+
+          if(!value){
+
+            resolve(null);
+            return;
+
+          }
+
+          try{
+
+            resolve(
+              JSON.parse(value)
+            );
+
+          }catch(e){
+
+            resolve(null);
+
+          }
+
+        }
+
+      );
+
+    }
+  );
+
+}
+
+function cloudSave(){
+
+  return new Promise(
+    resolve => {
+
+      if(
+        !tg ||
+        !tg.CloudStorage
+      ){
+
+        resolve(false);
+        return;
+
+      }
+
+      try{
+
+        tg.CloudStorage.setItem(
+
+          "luckyshack_data",
+
+          JSON.stringify(data),
+
+          error => {
+
+            if(error){
+
+              console.log(
+                "Cloud save error:",
+                error
+              );
+
+              resolve(false);
+
+            }else{
+
+              resolve(true);
+
+            }
+
+          }
+
+        );
+
+      }catch(error){
+
+        resolve(false);
+
+      }
+
+    }
+  );
+
+}
+
+/* =====================================================
+   SAVE EVERYTHING
+===================================================== */
+
+async function saveData(){
+
+  saveLocal();
+
+  const cloudOK =
+    await cloudSave();
+
+  const status =
+    document.getElementById(
+      "cloudStatus"
+    );
+
+  if(status){
+
+    if(cloudOK){
+
+      status.textContent =
+        "☁️ Прогресс синхронизирован с Telegram.";
+
+    }else{
+
+      status.textContent =
+        "💾 Прогресс сохранён на устройстве.";
+
+    }
+
+  }
+
+}
+
+/* =====================================================
+   LOAD DATA
+===================================================== */
+
+async function loadData(){
+
+  const local =
+    getLocalData();
+
+  const cloud =
+    await cloudGet();
+
+  if(cloud){
+
+    data = {
+      ...DEFAULT_DATA,
+      ...cloud
+    };
+
+  }else{
+
+    data = local;
+
+  }
+
+  saveLocal();
+
+}
+
+/* =====================================================
+   HAPTICS
+===================================================== */
+
+function haptic(type="light"){
+
+  if(
+    !tg ||
+    !tg.HapticFeedback
+  ){
+
+    return;
+
+  }
+
+  try{
+
+    if(type==="success"){
+
+      tg.HapticFeedback
+        .notificationOccurred(
+          "success"
+        );
+
+    }
+
+    else if(type==="error"){
+
+      tg.HapticFeedback
+        .notificationOccurred(
+          "error"
+        );
+
+    }
+
+    else{
+
+      tg.HapticFeedback
+        .impactOccurred(
+          "light"
+        );
+
+    }
+
+  }catch(error){}
+
+}
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+let toastTimer = null;
+
+function toast(text){
+
+  const element =
+    document.getElementById(
+      "toast"
+    );
+
+  element.textContent =
+    text;
+
+  element.classList.add(
+    "show"
+  );
+
+  clearTimeout(
+    toastTimer
+  );
+
+  toastTimer =
+    setTimeout(
+      ()=>{
+        element.classList.remove(
+          "show"
+        );
+      },
+      1900
+    );
+
+}
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+let currentScreen =
+  "home";
+
+function showScreen(name){
+
+  const screens =
+    document.querySelectorAll(
+
+
+".screen"
+    );
+
+  screens.forEach(
+    screen => {
+
+      screen.classList.remove(
+        "active"
+      );
+
+    }
+  );
+
+  const target =
+    document.getElementById(
+      "screen-"+name
+    );
+
+  if(!target){
+
+    console.error(
+      "Screen not found:",
+      name
+    );
+
+    return;
+
+  }
+
+  target.classList.add(
+    "active"
+  );
+
+  currentScreen =
+    name;
+
+  window.scrollTo(
+    0,
+    0
+  );
+
+  if(
+    tg &&
+    tg.BackButton
+  ){
+
+    if(name==="home"){
+
+      tg.BackButton.hide();
+
+    }else{
+
+      tg.BackButton.show();
+
+    }
+
+  }
+
+  updateUI();
+
+  haptic("light");
+
+}
+
+function setupNavigation(){
+
+  document.querySelectorAll(
+    "[data-screen]"
+  ).forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        function(){
+
+          const screen =
+            this.getAttribute(
+              "data-screen"
+            );
+
+          if(screen){
+
+            showScreen(
+              screen
+            );
+
+          }
+
+        }
+      );
+
+    }
+  );
+
+  if(
+    tg &&
+    tg.BackButton
+  ){
+
+    tg.BackButton.onClick(
+      ()=>{
+        showScreen(
+          "home"
+        );
+      }
+    );
+
+  }
+
+}
+
+/* =====================================================
+   SYMBOLS
+===================================================== */
+
 const symbols = [
+
   "🍒",
   "🍋",
   "🍊",
@@ -767,739 +1002,1056 @@ const symbols = [
   "🍀",
   "🔔",
   "7️⃣"
+
 ];
-
-let data = JSON.parse(
-  localStorage.getItem("luckyshack_data") || "null"
-) || {
-
-  score:0,
-  best:0,
-  streak:0,
-  maxStreak:0,
-  games:0,
-
-  xp:0,
-  level:1,
-
-  achievements:[],
-
-  dailyDate:"",
-  dailyClaimed:false
-
-};
-
-function save(){
-
-  localStorage.setItem(
-    "luckyshack_data",
-    JSON.stringify(data)
-  );
-
-  updateUI();
-}
-
-function vibrate(type="light"){
-
-  if(!tg || !tg.HapticFeedback) return;
-
-  try{
-
-    if(type==="success"){
-      tg.HapticFeedback.notificationOccurred("success");
-    }
-
-    else if(type==="error"){
-      tg.HapticFeedback.notificationOccurred("error");
-    }
-
-    else{
-      tg.HapticFeedback.impactOccurred("light");
-    }
-
-  }catch(e){}
-
-}
 
 function randomSymbol(){
 
   return symbols[
-    Math.floor(Math.random()*symbols.length)
+    Math.floor(
+      Math.random() *
+      symbols.length
+    )
   ];
 
 }
 
-function openScreen(id){
-
-  document
-    .querySelectorAll(".screen")
-    .forEach(el=>el.classList.remove("active"));
-
-  const screen = document.getElementById(id);
-
-  if(screen){
-    screen.classList.add("active");
-  }
-
-  updateUI();
-
-  window.scrollTo(0,0);
-
-  vibrate("light");
-
-}
-
-function goHome(){
-
-  openScreen("home");
-
-}
-
-function toast(text){
-
-  const el = document.getElementById("toast");
-
-  el.textContent = text;
-  el.classList.add("show");
-
-  setTimeout(()=>{
-    el.classList.remove("show");
-  },1800);
-
-}
+/* =====================================================
+   XP
+===================================================== */
 
 function addXP(amount){
 
-  data.xp += amount;
+  if(!amount || amount<0){
+    return;
+  }
 
-  let leveled = false;
+  data.xp +=
+    Math.floor(amount);
 
-  while(data.xp >= data.level * 100){
+  let levelUp = false;
 
-    data.xp -= data.level * 100;
+  while(
+    data.xp >=
+    data.level * 100
+  ){
+
+    data.xp -=
+      data.level * 100;
 
     data.level++;
 
-    leveled = true;
+    levelUp = true;
 
   }
 
-  if(leveled){
+  if(levelUp){
 
-    toast("🎉 Новый уровень: "+data.level);
+    toast(
+      "🎉 Новый уровень: "+
+      data.level
+    );
 
-    vibrate("success");
+    haptic(
+      "success"
+    );
 
   }
 
 }
+
+/* =====================================================
+   SCORE
+===================================================== */
 
 function addScore(amount){
 
-  data.score += amount;
+  data.score +=
+    Math.max(
+      0,
+      Math.floor(amount)
+    );
 
-  if(data.score > data.best){
-    data.best = data.score;
+  if(
+    data.score >
+    data.best
+  ){
+
+    data.best =
+      data.score;
+
   }
 
 }
 
-function updateUI(){
+/* =====================================================
+   USER UI
+===================================================== */
 
-  const user =
-    tg &&
-    tg.initDataUnsafe &&
-    tg.initDataUnsafe.user
-      ? tg.initDataUnsafe.user
-      : null;
+function updateUser(){
+
+  const badge =
+    document.getElementById(
+      "userBadge"
+    );
 
   const name =
-    user
+    telegramUser
       ? (
-          user.first_name ||
-          user.username ||
-          "Игрок"
+          telegramUser.username
+            ? "@"+telegramUser.username
+            : firstName
         )
       : "Игрок";
 
-  document.getElementById("userName").textContent =
-    name;
+  badge.innerHTML =
+    escapeHTML(name);
 
-  document.getElementById("profileName").textContent =
-    name;
+  if(isOwner){
 
-  document.getElementById("avatar").textContent =
-    name.charAt(0).toUpperCase();
+    badge.innerHTML +=
+      '<span class="owner-mini">OWNER</span>';
 
-  document.getElementById("homeSco
+  }
 
-
-re").textContent =
-    data.score;
-
-  document.getElementById("homeBest").textContent =
-    data.best;
-
-  document.getElementById("homeLevel").textContent =
-    data.level;
-
-  document.getElementById("profileLevel").textContent =
-    data.level;
-
-  document.getElementById("profileScore").textContent =
-    data.score;
-
-  document.getElementById("profileBest").textContent =
-    data.best;
-
-  document.getElementById("profileGames").textContent =
-    data.games;
-
-  document.getElementById("profileCombo").textContent =
-    data.maxStreak;
-
-  const need = data.level * 100;
-
-  const percent =
-    Math.min(
-      100,
-      (data.xp / need) * 100
+  const profileName =
+    document.getElementById(
+      "profileName"
     );
 
-  document.getElementById("xpBar").style.width =
-    percent+"%";
+  profileName.textContent =
+    telegramUser
+      ? (
+          telegramUser.username
+            ? "@"+telegramUser.username
+            : firstName
+        )
+      : "Игрок";
 
-  document.getElementById("xpCurrent").textContent =
-    data.xp+" XP";
-
-  document.getElementById("xpNext").textContent =
-    need+" XP";
-
-  updateDaily();
-
-  updateAchievements();
-
-}
-
-function today(){
-
-  const d = new Date();
-
-  return d.getFullYear()+"-"+
-    String(d.getMonth()+1).padStart(2,"0")+"-"+
-    String(d.getDate()).padStart(2,"0");
-
-}
-
-function updateDaily(){
-
-  const current = today();
-
-  if(data.dailyDate !== current){
-
-    data.dailyDate = current;
-    data.dailyClaimed = false;
-
-    localStorage.setItem(
-      "luckyshack_data",
-      JSON.stringify(data)
+  const avatar =
+    document.getElementById(
+      "profileAvatar"
     );
 
-  }
+  avatar.textContent =
+    (
+      telegramUser &&
+      telegramUser.first_name
+        ? telegramUser.first_name.charAt(0)
+        : "L"
+    ).toUpperCase();
 
-  const btn =
-    document.getElementById("dailyBtn");
+  const ownerTitle =
+    document.getElementById(
+      "ownerTitle"
+    );
 
-  const text =
-    document.getElementById("dailyText");
+  ownerTitle.style.display =
+    isOwner
+      ? "inline-block"
+      : "none";
 
-  if(data.dailyClaimed){
+}
 
-    btn.disabled = true;
-    btn.textContent = "Получено ✓";
+/* =====================================================
+   ESCAPE
+===================================================== */
 
-    text.textContent =
-      "Бонус уже получен сегодня. Возвращайся завтра!";
+function escapeHTML(value){
 
-  }
+  return String(value)
+    .replace(
+      /[&<>"']/g,
+      char =>
+        ({
+          "&":"&amp;",
+          "<":"&lt;",
+          ">":"&gt;",
+          '"':"&quot;",
+          "'":"'"
+        })[char]
+    );
 
-  else{
+}
 
-    btn.disabled = false;
-    btn.textContent = "Получить +50 XP";
+/* =====================================================
+   DAILY
+===================================================== */
 
-    text.textContent =
-      "Сегодня можно получить бонус опыта.";
+function getToday(
+
+
+){
+
+  const date =
+    new Date();
+
+  return (
+    date.getFullYear()+
+    "-"+
+    String(
+      date.getMonth()+1
+    ).padStart(2,"0")+
+    "-"+
+    String(
+      date.getDate()
+    ).padStart(2,"0")
+  );
+
+}
+
+function checkDaily(){
+
+  const today =
+    getToday();
+
+  if(
+    data.dailyDate !==
+    today
+  ){
+
+    data.dailyDate =
+      today;
+
+    data.dailyClaimed =
+      false;
+
+    saveLocal();
 
   }
 
 }
 
-function claimDaily(){
+async function claimDaily(){
 
-  if(data.dailyClaimed){
+  checkDaily();
 
-    toast("🎁 Бонус уже получен");
+  if(
+    data.dailyClaimed
+  ){
+
+    toast(
+      "🎁 Бонус уже получен сегодня"
+    );
 
     return;
 
   }
 
-  data.dailyClaimed = true;
+  data.dailyClaimed =
+    true;
 
   addXP(50);
 
-  save();
+  toast(
+    "🎁 +50 XP"
+  );
 
-  toast("🎁 +50 XP");
+  haptic(
+    "success"
+  );
 
-  vibrate("success");
+  await saveData();
+
+  updateUI();
+
+}
+
+/* =====================================================
+   CLASSIC GAME
+===================================================== */
+
+let classicBusy =
+  false;
+
+function setupClassic(){
+
+  const button =
+    document.getElementById(
+      "classicSpin"
+    );
+
+  button.addEventListener(
+    "click",
+    classicSpin
+  );
 
 }
 
 function classicSpin(){
 
-  const btn =
-    document.getElementById("classicBtn");
+  if(classicBusy){
+    return;
+  }
 
-  if(btn.disabled) return;
+  classicBusy =
+    true;
 
-  btn.disabled = true;
+  const button =
+    document.getElementById(
+      "classicSpin"
+    );
+
+  button.disabled =
+    true;
 
   const reels = [
-    document.getElementById("reel1"),
-    document.getElementById("reel2"),
-    document.getElementById("reel3")
+
+    document.getElementById(
+      "classicReel1"
+    ),
+
+    document.getElementById(
+      "classicReel2"
+    ),
+
+    document.getElementById(
+      "classicReel3"
+    )
+
   ];
 
-  reels.forEach(r=>{
-    r.classList.add("spin");
-  });
-
-  let ticks = 0;
-
-  const interval = setInterval(()=>{
-
-    reels.forEach(r=>{
-      r.textContent = randomSymbol();
-    });
-
-    ticks++;
-
-    if(ticks >= 12){
-
-      clearInterval(interval);
-
-      reels.forEach(r=>{
-        r.classList.remove("spin");
-      });
-
-      const result = [
-        randomSymbol(),
-        randomSymbol(),
-        randomSymbol()
-      ];
-
-      reels.forEach((r,i)=>{
-        r.textContent = result[i];
-      });
-
-      finishClassic(result);
-
+  reels.forEach(
+    reel=>{
+      reel.classList.add(
+        "spinning"
+      );
     }
+  );
 
-  },90);
+  let ticks =
+    0;
+
+  const interval =
+    setInterval(
+      ()=>{
+
+        reels.forEach(
+          reel=>{
+            reel.textContent =
+              randomSymbol();
+          }
+        );
+
+        ticks++;
+
+        if(
+          ticks >= 13
+        ){
+
+          clearInterval(
+            interval
+          );
+
+          reels.forEach(
+            reel=>{
+              reel.classList.remove(
+                "spinning"
+              );
+            }
+          );
+
+          const result = [
+
+            randomSymbol(),
+            randomSymbol(),
+            randomSymbol()
+
+          ];
+
+          result.forEach(
+            (symbol,index)=>{
+
+              reels[index]
+                .textContent =
+                symbol;
+
+            }
+          );
+
+          finishClassic(
+            result
+          );
+
+        }
+
+      },
+      85
+    );
 
 }
 
-function finishClassic(result){
+async function finishClassic(
+  result
+){
 
   data.games++;
 
-  const same =
-    result[0]===result[1] &&
-    result[1]===result[2];
+  const triple =
+    result[0] === result[1] &&
+    result[1] === result[2];
 
-  let points = 0;
+  const pair =
+    result[0] === result[1] ||
+    result[1] === result[2] ||
+    result[0] === result[2];
 
-  if(same){
+  let points =
+    2;
+
+  if(triple){
 
     data.streak++;
 
-    points =
-      50 +
-      data.streak * 10;
+    if(
+      data.streak >
+      data.maxStreak
+    ){
 
-    if(data.streak > data.maxStreak){
-      data.maxStreak = data.streak;
+      data.maxStreak =
+        data.streak;
+
     }
+
+    points =
+      40 +
+      data.streak * 10;
 
     addXP(20);
 
-    document.getElementById("classicResult").textContent =
-      "🎉 ТРИ ОДИНАКОВЫХ! +"+points+" очков";
+    document.getElementById(
+      "classicResult"
+    ).textContent =
+      "🎉 ТРИ ОДИНАКОВЫХ! +"+
+      points;
 
-    toast("🔥 Отличная серия!");
+    toast(
+      "🔥 Серия x"+
+      data.streak
+    );
 
-    vibrate("success");
+    haptic(
+      "success"
+    );
+
+  }
+
+  else if(pair){
+
+    data.streak =
+      0;
+
+    points =
+      8;
+
+    addXP(7);
+
+    document.getElementById(
+      "classicResult"
+    ).textContent =
+      "✨ Пара! +8";
+
+    haptic(
+      "light"
+    );
 
   }
 
   else{
 
-    points = 5;
+    data.streak =
+      0;
 
-    data.streak = 0;
+    points =
+      2;
 
-    addXP(5);
+    addXP(3);
 
-    document.getElementById("classicResult").textContent =
-      "+5 очков. Попробуй ещё!";
+    document.getElementById(
+      "classicResult"
+    ).textContent =
+      "+2. Попробуй ещё";
 
-    vibrate("light");
+    haptic(
+      "light"
+    );
 
   }
 
-  addScore(points);
-
-  document.getElementById("classicScore").textContent =
-    data.score;
-
-  document.getElementById("classicStreak").textContent =
-    data.streak;
+  addScore(
+    points
+  );
 
   checkAchievements();
 
-  save();
+  await saveData();
 
-  setTimeout(()=>{
+  document.getElementById(
+    "classicSpin"
+  ).disabled =
+    false;
 
-    document.getElementById("classicBtn").disabled =
-      false;
+  classicBusy =
+    false;
 
-  },300);
+  updateUI();
 
 }
 
-let timeRunning = false;
-let timeLeft = 30;
-let timeScore = 0;
-let timeRounds = 0;
-let timeTimerInterval = null;
+/* =====================================================
+   TIME GAME
+===================================================== */
+
+let timeRunning =
+  false;
+
+let timeLeft =
+  30;
+
+let timeScore =
+  0;
+
+let timeRounds =
+  0;
+
+let timeTimer =
+  null;
+
+let timeBusy =
+  false;
+
+function setupTime(){
+
+
+const button =
+    document.getElementById(
+      "timeSpin"
+    );
+
+  button.addEventListener(
+    "click",
+    timeButton
+  );
+
+}
+
+function timeButton(){
+
+  if(
+    !timeRunning
+  ){
+
+    startTimeGame();
+
+  }else{
+
+    timeSpin();
+
+  }
+
+}
 
 function startTimeGame(){
 
-  timeRunning = true;
+  timeRunning =
+    true;
 
-  timeLeft = 30;
+  timeLeft =
+    30;
 
-  timeScore = 0;
-
-  timeRounds = 0;
-
-  document.get
-
-
-ElementById("timeTimer").textContent =
-    timeLeft;
-
-  document.getElementById("timeScore").textContent =
+  timeScore =
     0;
 
-  document.getElementById("timeRounds").textContent =
+  timeRounds =
     0;
 
-  document.getElementById("timeResult").textContent =
+  document.getElementById(
+    "timeTimer"
+  ).textContent =
+    "30";
+
+  document.getElementById(
+    "timeScore"
+  ).textContent =
+    "0";
+
+  document.getElementById(
+    "timeRounds"
+  ).textContent =
+    "0";
+
+  document.getElementById(
+    "timeResult"
+  ).textContent =
     "";
 
-  document.getElementById("timeBtn").textContent =
+  document.getElementById(
+    "timeSpin"
+  ).textContent =
     "КРУТИТЬ";
 
-  timeTimerInterval = setInterval(()=>{
+  timeTimer =
+    setInterval(
+      ()=>{
 
-    timeLeft--;
+        timeLeft--;
 
-    document.getElementById("timeTimer").textContent =
-      timeLeft;
+        document.getElementById(
+          "timeTimer"
+        ).textContent =
+          timeLeft;
 
-    if(timeLeft <= 0){
+        if(
+          timeLeft <= 0
+        ){
 
-      endTimeGame();
+          endTimeGame();
 
-    }
+        }
 
-  },1000);
+      },
+      1000
+    );
 
-}
-
-function endTimeGame(){
-
-  if(!timeRunning) return;
-
-  timeRunning = false;
-
-  clearInterval(timeTimerInterval);
-
-  timeTimerInterval = null;
-
-  data.score += timeScore;
-
-  if(data.score > data.best){
-    data.best = data.score;
-  }
-
-  data.games++;
-
-  addXP(
-    Math.max(
-      10,
-      Math.floor(timeScore/5)
-    )
+  haptic(
+    "success"
   );
-
-  document.getElementById("timeResult").textContent =
-    "⏰ Время! Результат: "+timeScore;
-
-  document.getElementById("timeBtn").textContent =
-    "НАЧАТЬ ЗАНОВО";
-
-  checkAchievements();
-
-  save();
-
-  vibrate("success");
 
 }
 
 function timeSpin(){
 
-  if(!timeRunning){
-
-    startTimeGame();
+  if(
+    !timeRunning ||
+    timeBusy ||
+    timeLeft<=0
+  ){
 
     return;
 
   }
 
-  if(timeLeft <= 0) return;
+  timeBusy =
+    true;
 
   const reels = [
-    document.getElementById("timeReel1"),
-    document.getElementById("timeReel2"),
-    document.getElementById("timeReel3")
+
+    document.getElementById(
+      "timeReel1"
+    ),
+
+    document.getElementById(
+      "timeReel2"
+    ),
+
+    document.getElementById(
+      "timeReel3"
+    )
+
   ];
 
-  reels.forEach(r=>{
-    r.classList.add("spin");
-    r.textContent = randomSymbol();
-  });
+  reels.forEach(
+    reel=>{
+      reel.classList.add(
+        "spinning"
+      );
 
-  setTimeout(()=>{
-
-    const result = [
-      randomSymbol(),
-      randomSymbol(),
-      randomSymbol()
-    ];
-
-    reels.forEach((r,i)=>{
-      r.classList.remove("spin");
-      r.textContent = result[i];
-    });
-
-    const same =
-      result[0]===result[1] &&
-      result[1]===result[2];
-
-    const pair =
-      result[0]===result[1] ||
-      result[1]===result[2] ||
-      result[0]===result[2];
-
-    let points = 1;
-
-    if(same){
-
-      points = 30;
-
-      toast("💎 Тройка! +30");
-
-      vibrate("success");
-
+      reel.textContent =
+        randomSymbol();
     }
+  );
 
-    else if(pair){
+  setTimeout(
+    ()=>{
 
-      points = 8;
+      const result = [
 
-    }
+        randomSymbol(),
+        randomSymbol(),
+        randomSymbol()
 
-    timeScore += points;
+      ];
 
-    timeRounds++;
+      reels.forEach(
+        (reel,index)=>{
 
-    document.getElementById("timeScore").textContent =
-      timeScore;
+          reel.classList.remove(
+            "spinning"
+          );
 
-    document.getElementById("timeRounds").textContent =
-      timeRounds;
+          reel.textContent =
+            result[index];
 
-  },180);
+        }
+      );
+
+      const triple =
+        result[0] === result[1] &&
+        result[1] === result[2];
+
+      const pair =
+        result[0] === result[1] ||
+        result[1] === result[2] ||
+        result[0] === result[2];
+
+      let points =
+        1;
+
+      if(triple){
+
+        points =
+          25;
+
+        haptic(
+          "success"
+        );
+
+      }
+
+      else if(pair){
+
+        points =
+          6;
+
+      }
+
+      timeScore +=
+        points;
+
+      timeRounds++;
+
+      document.getElementById(
+        "timeScore"
+      ).textContent =
+        timeScore;
+
+      document.getElementById(
+        "timeRounds"
+      ).textContent =
+        timeRounds;
+
+      timeBusy =
+        false;
+
+    },
+    130
+  );
 
 }
 
-document.getElementById("timeBtn").addEventListener(
-  "click",
-  function(){
+async function endTimeGame(){
 
-    if(this.textContent==="НАЧАТЬ ЗАНОВО" && !timeRunning){
+  if(
+    !timeRunning
+  ){
 
-      startTimeGame();
-
-    }
+    return;
 
   }
-);
 
-let targetHits = 0;
-let targetScore = 0;
-let target = "💎";
+  timeRunning =
+    false;
 
-function newTarget(){
+  clearInterval(
+    timeTimer
+  );
+
+  timeTimer =
+    null;
+
+  data.games++;
+
+  addScore(
+    timeScore
+  );
+
+  addXP(
+    Math.max(
+      10,
+      Math.floor(
+        timeScore / 3
+      )
+    )
+  );
+
+  document.getElementById(
+    "timeResult"
+  ).textContent =
+    "⏰ Время! Результат: "+
+    timeScore;
+
+  document.getElementById(
+    "timeSpin"
+  ).textContent =
+    "НАЧАТЬ ЗАНОВО";
+
+  checkAchievements();
+
+  await saveData();
+
+  updateUI();
+
+  toast(
+    "🏁 Результат сохранён"
+  );
+
+  haptic(
+    "success"
+  );
+
+}
+
+/* =====================================================
+   TARGET GAME
+===================================================== */
+
+let target =
+  "💎";
+
+let targetHits =
+  0;
+
+let targetScore =
+  0;
+
+let targetBusy =
+  false;
+
+function setupTarget(){
+
+  const button =
+    document.getElementById(
+      "targetSpin"
+    );
+
+  button.addEventListener(
+    "click",
+    targetSpin
+  );
+
+  setNewTarget();
+
+}
+
+function setNewTarget(){
 
   target =
     randomSymbol();
 
-  document.getElementById("targetSymbol").textContent =
+  document.getElementById(
+    "targetSymbol"
+  ).textContent =
     target;
 
 }
 
 function targetSpin(){
 
-  const btn =
-    document.getElementById("targetBtn");
+  if(targetBusy){
+    return;
+  }
 
-  if(btn.disabled) return;
-
-  btn.disabled = true;
+  targetBusy =
+    true;
 
   const reels = [
-    document.getElementById("targetReel1"),
-    document.getElementById("targetReel2"),
-    document.getElementById("targetReel3")
+
+    document.getElementById(
+      "targetReel1"
+    ),
+
+    document.getElementById(
+      "targetReel2"
+    ),
+
+    document.getElementById(
+      "targetReel3"
+    )
+
   ];
 
-  reels.forEach(r=>{
-    r.classList.add("spin");
-  });
 
-  let ticks = 0;
+reels.forEach(
+    reel=>{
+      reel.classList.add(
+        "spinning"
+      );
+    }
+  );
 
-  const interval = setInterval(()=>{
+  let ticks =
+    0;
 
-    reels.forEach(r=>{
-      r.textContent = randomSymbol();
-    });
+  const interval =
+    setInterval(
+      ()=>{
 
-    ticks++;
+        reels.forEach(
+          reel=>{
+            reel.textContent =
+              randomSymbol();
+          }
+        );
 
-    if(ticks>=10){
+        ticks++;
 
-      clearInterval(interval);
+        if(
+          ticks >= 10
+        ){
 
-      reels.forEach(r=>{
-        r.classList.remove("spin");
-      });
+          clearInterval(
+            interval
+          );
 
-      const result = [
-        randomSymbol(),
-        randomSymbol(),
-        randomSymbol()
-      ];
+          reels.forEach(
+            reel=>{
+              reel.classList.remove(
+                "spinning"
+              );
+            }
+          );
 
-      reels.forEach((r,i)=>{
-        r.textContent = result[i];
-      });
+          const result = [
 
-      let hit = 0;
+            randomSymbol(),
+            randomSymbol(),
+            randomSymbol()
 
-      result.forEach(s=>{
+          ];
 
-        if(s===target){
-          hit++;
+          reels.forEach(
+            (reel,index)=>{
+
+              reel.textContent =
+                result[index];
+
+            }
+          );
+
+          finishTarget(
+            result
+          );
+
         }
 
-      });
-
-      if(hit>0){
-
-        targetHits += hit;
-
-        const points = hit * 15;
-
-        targetScore += points;
-
-        addScore(points);
-
-        addXP(hit*10);
-
-        document.getElementById("targetResult").textContent =
-          "🎯 Попадание! +"+points+" очков";
-
-        vibrate("success");
-
-      }
-
-      else{
-
-        document.getElementById("targetResult").textContent =
-          "Не попал. Цель всё ещё "+target;
-
-        vibrate("light");
-
-      }
-
-      data.games++;
-
-      if(targetHits>=3){
-
-        toast("🏆 Цель выполнена
-
-
-!");
-
-        targetHits = 0;
-
-        targetScore = 0;
-
-        newTarget();
-
-      }
-
-      document.getElementById("targetHits").textContent =
-        targetHits;
-
-      document.getElementById("targetScore").textContent =
-        targetScore;
-
-      checkAchievements();
-
-      save();
-
-      setTimeout(()=>{
-
-        btn.disabled = false;
-
-      },250);
-
-    }
-
-  },90);
+      },
+      85
+    );
 
 }
 
-const achievementData = [
+async function finishTarget(
+  result
+){
+
+  data.games++;
+
+  let hits =
+    0;
+
+  result.forEach(
+    symbol=>{
+
+      if(
+        symbol === target
+      ){
+
+        hits++;
+
+      }
+
+    }
+  );
+
+  if(hits>0){
+
+    const points =
+      hits * 15;
+
+    targetHits +=
+      hits;
+
+    targetScore +=
+      points;
+
+    addScore(
+      points
+    );
+
+    addXP(
+      hits * 10
+    );
+
+    document.getElementById(
+      "targetResult"
+    ).textContent =
+      "🎯 Попадание! +"+
+      points;
+
+    haptic(
+      "success"
+    );
+
+  }
+
+  else{
+
+    document.getElementById(
+      "targetResult"
+    ).textContent =
+      "Мимо. Цель: "+
+      target;
+
+    haptic(
+      "light"
+    );
+
+  }
+
+  if(
+    targetHits >= 3
+  ){
+
+    toast(
+      "🏆 Цель выполнена!"
+    );
+
+    targetHits =
+      0;
+
+    targetScore =
+      0;
+
+    setNewTarget();
+
+  }
+
+  document.getElementById(
+    "targetHits"
+  ).textContent =
+    targetHits;
+
+  document.getElementById(
+    "targetScore"
+  ).textContent =
+    targetScore;
+
+  checkAchievements();
+
+  await saveData();
+
+  targetBusy =
+    false;
+
+  updateUI();
+
+}
+
+/* =====================================================
+   ACHIEVEMENTS
+===================================================== */
+
+const achievements = [
 
   {
     id:"first",
@@ -1541,139 +2093,742 @@ const achievementData = [
     icon:"🎮",
     title:"Игрок",
     desc:"Сыграй 10 игр"
+  },
+
+  {
+    id:"games50",
+    icon:"🏆",
+    title:"Ветеран",
+    desc:"Сыграй 50 игр"
+  },
+
+  {
+    id:"score1000",
+    icon:"💎",
+    title:"Тысяча",
+    desc:"Набери 1000 очков"
   }
 
 ];
 
-function hasAchievement(id){
+function unlocked(id){
 
-  return data.achievements.includes(id);
+  return data.achievements
+    .includes(id);
 
 }
 
 function unlock(id){
 
-  if(hasAchievement(id)) return;
+  if(
+    unlocked(id)
+  ){
 
-  data.achievements.push(id);
+    return false;
 
-  const item =
-    achievementData.find(a=>a.id===id);
+  }
 
-  if(item){
+  data.achievements.push(
+    id
+  );
+
+  const achievement =
+    achievements.find(
+      item =>
+        item.id === id
+    );
+
+  if(achievement){
 
     toast(
-      "🏆 "+item.title
+      "🏆 "+
+      achievement.title
     );
 
   }
 
-  addXP(25);
+  addXP(
+    25
+  );
 
-  vibrate("success");
+  haptic(
+    "success"
+  );
+
+  return true;
 
 }
 
 function checkAchievements(){
 
-  if(data.games>=1){
-    unlock("first");
+  if(
+    data.games >= 1
+  ){
+
+    unlock(
+      "first"
+    );
+
   }
 
-  if(data.maxStreak>=5){
-    unlock("combo5");
+  if(
+    data.maxStreak >= 5
+  ){
+
+    unlock(
+      "combo5"
+    );
+
   }
 
-  if(data.score>=100){
-    unlock("score100");
+  if(
+    data.score >= 100
+  ){
+
+    unlock(
+      "score100"
+    );
+
   }
 
-  if(data.best>=500){
-    unlock("best500");
+  if(
+    data.best >= 500
+  ){
+
+    unlock(
+      "best500"
+    );
+
   }
 
-  if(data.level>=5){
-    unlock("level5");
+  if(
+    data.level >= 5
+  ){
+
+    unlock(
+      "level5"
+    );
+
   }
 
-  if(data.games>=10){
-    unlock("games10");
+  if(
+    data.games >= 10
+  ){
+
+    unlock(
+      "games10"
+    );
+
   }
 
-  localStorage.setItem(
-    "luckyshack_data",
-    JSON.stringify(data)
-  );
+  if(
+    data.games >= 50
+  ){
+
+    unlock(
+      "games50"
+    );
+
+  }
+
+  if(
+    data.score >= 1000
+  ){
+
+    unlock(
+      "score1000"
+
+
+);
+
+  }
+
+  saveLocal();
 
 }
+
+/* =====================================================
+   ACHIEVEMENT UI
+===================================================== */
 
 function updateAchievements(){
 
   const container =
-    document.getElementById("achievementList");
+    document.getElementById(
+      "achievementList"
+    );
 
-  container.innerHTML = "";
+  container.innerHTML =
+    "";
 
-  achievementData.forEach(item=>{
+  achievements.forEach(
+    achievement=>{
 
-    const unlocked =
-      hasAchievement(item.id);
+      const isUnlocked =
+        unlocked(
+          achievement.id
+        );
 
-    const div =
-      document.createElement("div");
+      const row =
+        document.createElement(
+          "div"
+        );
 
-    div.className =
-      "list-item "+(
-        unlocked
-          ? ""
-          : "locked"
+      row.className =
+        "list-item "+
+        (
+          isUnlocked
+            ? ""
+            : "locked"
+        );
+
+      row.innerHTML = `
+
+        <div class="list-icon">
+          ${
+            isUnlocked
+              ? achievement.icon
+              : "🔒"
+          }
+        </div>
+
+        <div class="list-info">
+
+          <div class="list-title">
+            ${achievement.title}
+          </div>
+
+          <div class="list-desc">
+            ${achievement.desc}
+          </div>
+
+        </div>
+
+        <div>
+          ${
+            isUnlocked
+              ? "✓"
+              : ""
+          }
+        </div>
+
+      `;
+
+      container.appendChild(
+        row
       );
 
-    div.innerHTML = `
-
-      <div class="achievement-icon">
-        ${unlocked ? item.icon : "🔒"}
-      </div>
-
-      <div class="list-info">
-
-        <div class="list-title">
-          ${item.title}
-        </div>
-
-        <div class="list-desc">
-          ${item.desc}
-        </div>
-
-      </div>
-
-      <div>
-        ${unlocked ? "✓" : ""}
-      </div>
-
-    `;
-
-    container.appendChild(div);
-
-  });
+    }
+  );
 
 }
 
-function resetTimeIfNeeded(){
+/* =====================================================
+   LEADERBOARD
+===================================================== */
 
-  if(timeRunning && timeLeft<=0){
+/*
+  Сейчас это локальный демонстрационный рейтинг.
 
-    endTimeGame();
+  Настоящий общий рейтинг подключим через backend.
+*/
+
+function getDemoLeaderboard(){
+
+  const me =
+    telegramUser &&
+    telegramUser.username
+      ? telegramUser.username
+      : "player";
+
+  const list = [
+
+    {
+      name:"matwaysr",
+      score:
+        isOwner
+          ? Math.max(
+              1250,
+              data.best
+            )
+          : 1250
+    },
+
+    {
+      name:"LuckyMaster",
+      score:1120
+    },
+
+    {
+      name:"NeonPlayer",
+      score:980
+    },
+
+    {
+      name:"ArcadeFox",
+      score:840
+    },
+
+    {
+      name:"PixelCat",
+      score:720
+    },
+
+    {
+      name:""+me,
+      score:data.best
+
+    }
+
+  ];
+
+  const unique = [];
+
+  list.forEach(
+    player=>{
+
+      if(
+        !unique.some(
+          item =>
+            item.name.toLowerCase() ===
+            player.name.toLowerCase()
+        )
+      ){
+
+        unique.push(
+          player
+        );
+
+      }
+
+    }
+  );
+
+  unique.sort(
+    (a,b)=>
+      b.score -
+      a.score
+  );
+
+  return unique.slice(
+    0,
+    10
+  );
+
+}
+
+function updateLeaderboard(){
+
+  const container =
+    document.getElementById(
+      "leaderboardList"
+    );
+
+  const list =
+    getDemoLeaderboard();
+
+  container.innerHTML =
+    "";
+
+  let myPosition =
+    null;
+
+  list.forEach(
+    (player,index)=>{
+
+      const row =
+        document.createElement(
+          "div"
+        );
+
+      row.className =
+        "rank-row";
+
+      const rank =
+        index + 1;
+
+      const medals = {
+
+        1:"🥇",
+        2:"🥈",
+        3:"🥉"
+
+      };
+
+      const medal =
+        medals[rank] ||
+        rank;
+
+      const isMe =
+        telegramUser &&
+        telegramUser.username &&
+        player.name.toLowerCase() ===
+          telegramUser.username.toLowerCase();
+
+      if(isMe){
+
+        myPosition =
+          rank;
+
+      }
+
+      const owner =
+        player.name.toLowerCase() ===
+        "matwaysr";
+
+      row.innerHTML = `
+
+        <div class="rank">
+          ${medal}
+        </div>
+
+        <div class="rank-user">
+
+          <div class="rank-name">
+
+            ${escapeHTML(
+              player.name
+            )}
+
+            ${
+              owner
+                ? '<span class="rank-owner">OWNER</span>'
+                : ''
+            }
+
+          </div>
+
+        </div>
+
+        <div class="rank-score">
+          ${player.score}
+        </div>
+
+      `;
+
+      container.appendChild(
+        row
+      );
+
+    }
+  );
+
+  document.getElementById(
+    "myRank"
+  ).textContent =
+    myPosition
+      ? "Твоя позиция: #"+
+        myPosition
+      : "Твоя позиция: вне ТОП-10";
+
+}
+Achievement
+Achievement
+achievement.id
+
+
+/* =====================================================
+   UPDATE UI
+===================================================== */
+
+function updateUI(){
+
+  if(!data){
+    return;
+  }
+
+  updateUser();
+
+  document.getElementById(
+    "homeScore"
+  ).textContent =
+    data.score;
+
+  document.getElementById(
+    "homeBest"
+  ).textContent =
+    data.best;
+
+  document.getElementById(
+    "homeLevel"
+  ).textContent =
+    data.level;
+
+  const nextXP =
+    data.level * 100;
+
+  document.getElementById(
+    "homeXP"
+  ).textContent =
+    data.xp+
+    " / "+
+    nextXP;
+
+  document.getElementById(
+    "homeXPBar"
+  ).style.width =
+    Math.min(
+      100,
+      (
+        data.xp /
+        nextXP
+      ) * 100
+    )+
+    "%";
+
+  document.getElementById(
+    "profileLevel"
+  ).textContent =
+    data.level;
+
+  document.getElementById(
+    "profileScore"
+  ).textContent =
+    data.score;
+
+  document.getElementById(
+    "profileBest"
+  ).textContent =
+    data.best;
+
+  document.getElementById(
+    "profileGames"
+  ).textContent =
+    data.games;
+
+  document.getElementById(
+    "profileCombo"
+  ).textContent =
+    data.maxStreak;
+
+  document.getElementById(
+    "profileXP"
+  ).textContent =
+    data.xp+
+    " / "+
+    nextXP+
+    " XP";
+
+  document.getElementById(
+    "profileXPBar"
+  ).style.width =
+    Math.min(
+      100,
+      (
+        data.xp /
+        nextXP
+      ) * 100
+    )+
+    "%";
+
+  document.getElementById(
+    "classicScore"
+  ).textContent =
+    data.score;
+
+  document.getElementById(
+    "classicStreak"
+  ).textContent =
+    data.streak;
+
+  checkDaily();
+
+  const dailyBtn =
+    document.getElementById(
+      "dailyBtn"
+    );
+
+  const dailyText =
+    document.getElementById(
+      "dailyText"
+    );
+
+  if(
+    data.dailyClaimed
+  ){
+
+    dailyBtn.disabled =
+      true;
+
+    dailyBtn.textContent =
+      "Получено ✓";
+
+    dailyText.textContent =
+      "Бонус уже получен. Возвращайся завтра!";
+
+  }else{
+
+    dailyBtn.disabled =
+      false;
+
+    dailyBtn.textContent =
+      "Получить +50 XP";
+
+    dailyText.textContent =
+      "Сегодня доступен бонус +50 XP.";
+
+  }
+
+  updateAchievements();
+
+  updateLeaderboard();
+
+}
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+async function runLoading(){
+
+  const bar =
+    document.getElementById(
+      "loadingBar"
+    );
+
+  const text =
+    document.getElementById(
+      "loadingText"
+    );
+
+  const steps = [
+
+    {
+      percent:15,
+      text:"Подключение..."
+    },
+
+    {
+      percent:35,
+      text:"Загрузка профиля..."
+    },
+
+    {
+      percent:55,
+      text:"Проверка сохранений..."
+    },
+
+    {
+      percent:75,
+      text:"Подготовка режимов..."
+    },
+
+    {
+      percent:90,
+      text:"Загрузка интерфейса..."
+    },
+
+    {
+      percent:100,
+      text:"Готово!"
+    }
+
+  ];
+
+  for(
+    const step of steps
+  ){
+
+    bar.style.width =
+      step.percent+
+      "%";
+
+    text.textContent =
+      step.text;
+
+    await new Promise(
+      resolve =>
+        setTimeout(
+          resolve,
+          170
+        )
+    );
+
+  }
+
+  await new Promise(
+    resolve =>
+      setTimeout(
+        resolve,
+        350
+      )
+  );
+
+  document
+    .getElementById(
+      "loadingScreen"
+    )
+    .classList.add(
+      "hide"
+    );
+
+}
+
+/* =====================================================
+   INITIALIZATION
+===================================================== */
+
+async function init(){
+
+  try{
+
+    await loadData();
+
+    checkDaily();
+
+    checkAchievements();
+
+    setupNavigation();
+
+    setupClassic();
+
+    setupTime();
+
+    setupTarget();
+
+    document
+      .getElementById(
+        "dailyBtn"
+      )
+      .addEventListener(
+        "click",
+        claimDaily
+      );
+
+    updateUI();
+
+    await runLoading();
+
+    console.log(
+      "LuckyShack 4.0 ready"
+    );
+
+  }catch(error){
+
+    console.error(
+      "LuckyShack init error:",
+      error
+    );
+
+    data =
+      getLocalData();
+
+    updateUI();
+
+    await
+
+
+runLoading();
 
   }
 
 }
 
-newTarget();
+/* =====================================================
+   START
+===================================================== */
 
-updateUI();
-
-checkAchievements();
+init();
 
 </script>
 
