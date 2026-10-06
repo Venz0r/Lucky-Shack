@@ -1,267 +1,105 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
+nerHTML = "";
 
-  <!-- Чтобы нормально выглядело на телефоне -->
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  >
+    achievementData.forEach(a => {
 
-  <title>Lucky Arcade</title>
+      const unlocked = a.check();
 
-  <link rel="stylesheet" href="style.css">
-</head>
+      const row = document.createElement("div");
 
-<body>
+      row.className =
+        "achievement" + (unlocked ? "" : " locked");
 
-  <main class="app">
-
-    <!-- Верхняя часть -->
-    <header class="topbar">
-
-      <div>
-        <div class="eyebrow">ARCADE</div>
-        <h1>Lucky Arcade</h1>
-      </div>
-
-      <div class="score-box">
-        <span>ОЧКИ</span>
-        <strong id="score">0</strong>
-      </div>
-
-    </header>
-
-    <!-- Основная игра -->
-    <section class="card">
-
-      <div class="status">
-
-        <span id="message">
-          Готов? Жми!
-        </span>
-
-        <span class="streak">
-          Серия: <b id="streak">0</b> 🔥
-        </span>
-
-      </div>
-
-      <!-- Барабаны -->
-      <div class="reels">
-
-        <div class="reel" id="reel1">
-          🍒
+      row.innerHTML = `
+        <div class="achievement-icon">
+          ${unlocked ? a.icon : "🔒"}
         </div>
 
-        <div class="reel" id="reel2">
-          ⭐
+        <div class="achievement-text">
+          <div class="achievement-name">
+            ${a.name}
+          </div>
+
+          <div class="achievement-desc">
+            ${a.desc}
+          </div>
         </div>
+      `;
 
-        <div class="reel" id="reel3">
-          💎
-        </div>
+      container.appendChild(row);
 
-      </div>
-
-      <!-- Кнопка -->
-      <button id="playButton" class="play-button">
-        ИГРАТЬ
-      </button>
-
-      <!-- Таблица очков -->
-      <div class="rules">
-
-        <div>
-          <span>⭐</span>
-          <span>3 одинаковых</span>
-          <b>+100</b>
-        </div>
-
-        <div>
-          <span>💎</span>
-          <span>3 одинаковых</span>
-          <b>+250</b>
-        </div>
-
-        <div>
-          <span>🍒</span>
-          <span>3 одинаковых</span>
-          <b>+150</b>
-        </div>
-
-        <div>
-          <span>🍀</span>
-          <span>3 одинаковых</span>
-          <b>+200</b>
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- Статистика -->
-    <section class="stats">
-
-      <div class="stat">
-        <span>Лучший счёт</span>
-        <b id="best">0</b>
-      </div>
-
-      <div class="stat">
-        <span>Раундов</span>
-        <b id="rounds">0</b>
-      </div>
-
-    </section>
-
-    <p class="note">
-      Аркадная мини-игра без ставок, денег и покупок.
-    </p>
-
-  </main>
-
-<script>
-const symbols = ["🍒", "⭐", "💎", "🍀", "🍋", "🔔"];
-
-const rewards = {
-  "🍒": 150,
-  "⭐": 100,
-  "💎": 250,
-  "🍀": 200,
-  "🍋": 120,
-  "🔔": 175
-};
-
-const reels = [
-  document.getElementById("reel1"),
-  document.getElementById("reel2"),
-  document.getElementById("reel3")
-];
-
-const scoreElement = document.getElementById("score");
-const bestElement = document.getElementById("best");
-const roundsElement = document.getElementById("rounds");
-const streakElement = document.getElementById("streak");
-const messageElement = document.getElementById("message");
-const playButton = document.getElementById("playButton");
-
-let score = 0;
-let best = 0;
-let rounds = 0;
-let streak = 0;
-
-function randomSymbol() {
-  return symbols[Math.floor(Math.random() * symbols.length)];
-}
-
-function updateScreen() {
-  scoreElement.textContent = score;
-  bestElement.textContent = best;
-  roundsElement.textContent = rounds;
-  streakElement.textContent = streak;
-}
-
-function play() {
-
-  if (playButton.disabled) {
-    return;
-  }
-
-  playButton.disabled = true;
-
-  messageElement.textContent = "Крутим...";
-
-  reels.forEach(function(reel) {
-    reel.classList.add("spinning");
-  });
-
-  let counter = 0;
-
-  const timer = setInterval(function() {
-
-    reels.forEach(function(reel) {
-      reel.textContent = randomSymbol();
     });
 
-    counter++;
+  }
 
-    if (counter >= 15) {
+  function setupDaily() {
 
-      clearInterval(timer);
+    const button = document.getElementById("dailyButton");
 
-      const result = [
-        randomSymbol(),
-        randomSymbol(),
-        randomSymbol()
-      ];
+    const today = new Date().toISOString().slice(0, 10);
 
-      reels.forEach(function(reel, index) {
+    const lastDaily =
+      localStorage.getItem("ls_daily");
 
-        reel.classList.remove("spinning");
+    if (lastDaily === today) {
 
-        reel.textContent = result[index];
-
-      });
-
-      rounds++;
-
-      const win =
-        result[0] === result[1] &&
-        result[1] === result[2];
-
-      if (win) {
-
-        const reward = rewards[result[0]];
-
-        streak++;
-
-        score += reward;
-
-        if (score > best) {
-          best = score;
-        }
-
-        messageElement.textContent =
-          "Победа! +" + reward + " очков 🎉";
-
-        reels.forEach(function(reel) {
-          reel.classList.add("win");
-        });
-
-        setTimeout(function() {
-
-          reels.forEach(function(reel) {
-            reel.classList.remove("win");
-          });
-
-        }, 500);
-
-      } else {
-
-        streak = 0;
-
-        messageElement.textContent =
-          "Почти! Попробуй ещё ✨";
-
-      }
-
-      updateScreen();
-
-      setTimeout(function() {
-        playButton.disabled = false;
-      }, 300);
+      button.disabled = true;
+      button.textContent = "Получено";
 
     }
 
-  }, 80);
-}
+    button.addEventListener("click", () => {
 
-playButton.addEventListener("click", play);
+      const current =
+        new Date().toISOString().slice(0, 10);
 
-updateScreen();
+      if (localStorage.getItem("ls_daily") === current)
+        return;
+
+      localStorage.setItem("ls_daily", current);
+
+      score += 25;
+      addXP(20);
+
+      save();
+      updateUI();
+
+      button.disabled = true;
+      button.textContent = "Получено";
+
+      message.textContent = "🎁 Ежедневный бонус!";
+      reward.textContent = "+25 очков";
+
+      vibrate([50, 50, 100]);
+
+    });
+
+  }
+
+  function setupTelegramUser() {
+
+    if (!tg || !tg.initDataUnsafe) return;
+
+    const user = tg.initDataUnsafe.user;
+
+    if (!user) return;
+
+    let name = user.first_name || "Игрок";
+
+    if (name.length > 12) {
+      name = name.slice(0, 12) + "…";
+    }
+
+    document.getElementById("username").textContent =
+      "👤 " + name;
+  }
+
+  playButton.addEventListener("click", playGame);
+
+  setupTelegramUser();
+  setupDaily();
+  updateUI();
+
 </script>
-  
+
 </body>
 </html>
