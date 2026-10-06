@@ -122,7 +122,146 @@
 
   </main>
 
-  <script src="app.js"></script>
+<script>
+const symbols = ["🍒", "⭐", "💎", "🍀", "🍋", "🔔"];
 
+const rewards = {
+  "🍒": 150,
+  "⭐": 100,
+  "💎": 250,
+  "🍀": 200,
+  "🍋": 120,
+  "🔔": 175
+};
+
+const reels = [
+  document.getElementById("reel1"),
+  document.getElementById("reel2"),
+  document.getElementById("reel3")
+];
+
+const scoreElement = document.getElementById("score");
+const bestElement = document.getElementById("best");
+const roundsElement = document.getElementById("rounds");
+const streakElement = document.getElementById("streak");
+const messageElement = document.getElementById("message");
+const playButton = document.getElementById("playButton");
+
+let score = 0;
+let best = 0;
+let rounds = 0;
+let streak = 0;
+
+function randomSymbol() {
+  return symbols[Math.floor(Math.random() * symbols.length)];
+}
+
+function updateScreen() {
+  scoreElement.textContent = score;
+  bestElement.textContent = best;
+  roundsElement.textContent = rounds;
+  streakElement.textContent = streak;
+}
+
+function play() {
+
+  if (playButton.disabled) {
+    return;
+  }
+
+  playButton.disabled = true;
+
+  messageElement.textContent = "Крутим...";
+
+  reels.forEach(function(reel) {
+    reel.classList.add("spinning");
+  });
+
+  let counter = 0;
+
+  const timer = setInterval(function() {
+
+    reels.forEach(function(reel) {
+      reel.textContent = randomSymbol();
+    });
+
+    counter++;
+
+    if (counter >= 15) {
+
+      clearInterval(timer);
+
+      const result = [
+        randomSymbol(),
+        randomSymbol(),
+        randomSymbol()
+      ];
+
+      reels.forEach(function(reel, index) {
+
+        reel.classList.remove("spinning");
+
+        reel.textContent = result[index];
+
+      });
+
+      rounds++;
+
+      const win =
+        result[0] === result[1] &&
+        result[1] === result[2];
+
+      if (win) {
+
+        const reward = rewards[result[0]];
+
+        streak++;
+
+        score += reward;
+
+        if (score > best) {
+          best = score;
+        }
+
+        messageElement.textContent =
+          "Победа! +" + reward + " очков 🎉";
+
+        reels.forEach(function(reel) {
+          reel.classList.add("win");
+        });
+
+        setTimeout(function() {
+
+          reels.forEach(function(reel) {
+            reel.classList.remove("win");
+          });
+
+        }, 500);
+
+      } else {
+
+        streak = 0;
+
+        messageElement.textContent =
+          "Почти! Попробуй ещё ✨";
+
+      }
+
+      updateScreen();
+
+      setTimeout(function() {
+        playButton.disabled = false;
+      }, 300);
+
+    }
+
+  }, 80);
+}
+
+playButton.addEventListener("click", play);
+
+updateScreen();
+</script>
+  
 </body>
 </html>
