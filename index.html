@@ -1,103 +1,1107 @@
-nerHTML = "";
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    achievementData.forEach(a => {
+  <title>LuckyShack 2.0</title>
 
-      const unlocked = a.check();
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-      const row = document.createElement("div");
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: white;
+      background:
+        radial-gradient(circle at 50% 0%, #5b21b6 0%, #241044 35%, #090615 78%);
+      overflow-x: hidden;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .app {
+      width: min(440px, 100%);
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .version {
+      font-size: 11px;
+      opacity: .5;
+      margin-left: 4px;
+    }
+
+    .user {
+      max-width: 145px;
+      padding: 8px 11px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      background: rgba(255,255,255,.09);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hero {
+      text-align: center;
+      margin: 6px 0 18px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .hero p {
+      margin: 7px 0 0;
+      color: rgba(255,255,255,.65);
+      font-size: 13px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      padding: 12px 5px;
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      background: rgba(255,255,255,.07);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .stat-label {
+      margin-top: 3px;
+      color: rgba(255,255,255,.52);
+      font-size: 10px;
+    }
+
+    .game {
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 25px;
+      background: rgba(15, 8, 35, .75);
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+    }
+
+    .reels {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+
+    .reel {
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(255,255,255,.12);
+      border-radius: 20px;
+      background: linear-gradient(
+        145deg,
+        rgba(255,255,255,.16),
+        rgba(255,255,255,.05)
+      );
+      box-shadow: inset 0 0 20px rgba(255,255,255,.04);
+      font-size: 52px;
+      user-select: none;
+    }
+
+    .reel.win {
+      animation: win .55s ease;
+      border-color: #ffd84d;
+    }
+
+    @keyframes win {
+      0% {
+        transform: scale(1);
+      }
+
+      40% {
+        transform: scale(1.12);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .message {
+      min-height: 27px;
+      margin: 15px 0 4px;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .reward {
+      min-height: 22px;
+      color: rgba(255,255,255,.75);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .play {
+      width: 100%;
+      margin-top: 15px;
+      padding: 17px;
+      border: 0;
+      border-radius: 18px;
+      color: white;
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      box-shadow: 0 10px 30px rgba(139,92,246,.35);
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .play:active {
+      transform: scale(.97);
+    }
+
+    .play:disabled {
+      opacity: .55;
+    }
+
+    .section {
+      margin-top: 14px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      background: rgba(255,255,255,.07);
+    }
+      .section-title {
+      margin-bottom: 11px;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .level-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .xp-text {
+      color: rgba(255,255,255,.6);
+    }
+
+    .xp-bar {
+      height: 9px;
+      margin-top: 9px;
+      overflow: hidden;
+      border-radius: 20px;
+      background: rgba(255,255,255,.08);
+    }
+
+    .xp-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #ec4899, #8b5cf6);
+      transition: width .4s ease;
+    }
+
+    .achievement {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+
+    .achievement:last-child {
+      border-bottom: 0;
+    }
+
+    .achievement-icon {
+      width: 38px;
+      height: 38px;
+      flex: 0 0 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: rgba(255,255,255,.10);
+      font-size: 20px;
+    }
+
+    .achievement-text {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .achievement-name {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .achievement-desc {
+      margin-top: 3px;
+      color: rgba(255,255,255,.55);
+      font-size: 11px;
+    }
+
+    .locked {
+      opacity: .35;
+    }
+
+    .daily {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .daily-title {
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .daily-desc {
+      margin-top: 4px;
+      color: rgba(255,255,255,.55);
+      font-size: 11px;
+    }
+
+    .daily button {
+      flex: 0 0 auto;
+      padding: 10px 13px;
+      border: 0;
+      border-radius: 12px;
+      color: white;
+      background: rgba(255,255,255,.13);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .daily button:disabled {
+      opacity: .4;
+    }
+
+    .footer {
+      margin: 17px 0 5px;
+      color: rgba(255,255,255,.35);
+      text-align: center;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="top">
+    <div class="logo">
+      LuckyShack <span class="version">2.0</span>
+    </div>
+
+    <div class="user" id="username">
+      👤 Игрок
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1>🎮 Arcade Zone</h1>
+    <p>Собирай комбинации и прокачивай свой рекорд</p>
+  </div>
+
+  <div class="stats">
+
+    <div class="stat">
+      <div class="stat-value" id="score">0</div>
+      <div class="stat-label">ОЧКИ</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-value" id="best">0</div>
+      <div class="stat-label">РЕКОРД</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-value" id="streak">0</div>
+      <div class="stat-label">КОМБО</div>
+    </div>
+
+  </div>
+
+  <div class="game">
+
+    <div class="reels">
+
+      <div class="reel" id="reel1">🍒</div>
+      <div class="reel" id="reel2">⭐</div>
+      <div class="reel" id="reel3">💎</div>
+
+    </div>
+
+    <div class="message" id="message">
+      Готов к игре?
+    </div>
+
+    <div class="reward" id="reward">
+      Собери одинаковые символы
+    </div>
+
+    <button class="play" id="play" type="button">
+      ▶ ИГРАТЬ
+    </button>
+
+  </div>
+
+  <div class="section">
+
+    <div class="section-title">
+      ⭐ Уровень игрока
+    </div>
+
+    <div class="level-line">
+
+      <b>
+        Уровень <span id="level">1</span>
+      </b>
+
+      <span class="xp-text">
+        XP: <span id="xp">0</span>
+      </span>
+
+    </div>
+
+    <div class="xp-bar">
+      <div class="xp-fill" id="xpFill"></div>
+    </div>
+
+  </div>
+
+  <div class="section">
+
+    <div class="section-title">
+      🏆 Достижения
+    </div>
+
+    <div id="achievements"></div>
+
+  </div>
+
+  <div class="section">
+
+    <div class="daily">
+
+      <div>
+        <div class="daily-title">
+          🎁 Ежедневный бонус
+        </div>
+
+        <div class="daily-desc">
+          Бесплатный бонус за вход
+        </div>
+      </div>
+
+      <button id="dailyButton" type="button">
+        Получить
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="footer">
+    LuckyShack — аркадная игра без ставок и денежных операций
+  </div>
+
+</div>
+
+<script>
+"use strict";
+
+/* =========================
+   TELEGRAM
+========================= */
+
+const tg =
+  window.Telegram &&
+  window.Telegram.WebApp
+    ? window.Telegram.WebApp
+    : null;
+
+if (tg) {
+  tg.ready();
+  tg.expand();
+}
+
+/* =========================
+   SYMBOLS
+========================= */
+
+const symbols = [
+  "🍒",
+  "🍋",
+  "🍉",
+  "⭐",
+  "💎",
+  "🔔"
+];
+
+/* =========================
+   DATA
+========================= */
+
+let score =
+  Number(localStorage.getItem("ls_score")) || 0;
+
+let best =
+  Number(localStorage.getItem("ls_best")) || 0;
+
+let streak =
+  Number(localStorage.getItem("ls_streak")) || 0;
+
+let xp =
+  Number(localStorage.getItem("ls_xp")) || 0;
+
+let level =
+  Number(localStorage.getItem("ls_level")) || 1;
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const scoreEl =
+  document.getElementById("score");
+
+const bestEl =
+  document.getElementById("best");
+
+const streakEl =
+  document.getElementById("streak");
+
+const xpEl =
+  document.getElementById("xp");
+
+const levelEl =
+  document.getElementById("level");
+
+const xpFill =
+  document.getElementById("xpFill");
+
+const message =
+  document.getElementById("message");
+
+const reward =
+  document.getElementById("reward");
+
+const playButton =
+  document.getElementById("play");
+
+const reels = [
+  document.getElementById("reel1"),
+  document.getElementById("reel2"),
+  document.getElementById("reel3")
+];
+
+/* =========================
+   SAVE
+========================= */
+
+function save() {
+
+  localStorage.setItem(
+    "ls_score",
+    String(score)
+  );
+
+  localStorage.setItem(
+    "ls_best",
+    String(best)
+  );
+
+  localStorage.setItem(
+    "ls_streak",
+    String(streak)
+  );
+
+  localStorage.setItem(
+    "ls_xp",
+    String(xp)
+  );
+
+  localStorage.setItem(
+    "ls_level",
+    String(level)
+  );
+}
+
+/* =========================
+   UPDATE UI
+========================= */
+
+function updateUI() {
+
+  scoreEl.textContent = score;
+  bestEl.textContent = best;
+  streakEl.textContent = streak;
+
+  xpEl.textContent = xp;
+  levelEl.textContent = level;
+
+  const xpNeeded =
+    level * 100;
+
+  const progress =
+    Math.min(
+      (xp / xpNeeded) * 100,
+      100
+    );
+
+  xpFill.style.width =
+    progress + "%";
+
+  renderAchievements();
+}
+
+/* =========================
+   RANDOM SYMBOL
+========================= */
+
+function randomSymbol() {
+
+  return symbols[
+    Math.floor(
+      Math.random() * symbols.length
+    )
+  ];
+}
+
+/* =========================
+   WAIT
+========================= */
+
+function sleep(ms) {
+
+  return new Promise(
+    resolve => setTimeout(resolve, ms)
+  );
+}
+
+/* =========================
+   VIBRATION
+========================= */
+
+function vibrate() {
+
+  try {
+
+    if (
+      tg &&
+      tg.HapticFeedback
+    ) {
+
+      tg.HapticFeedback
+        .impactOccurred("medium");
+
+      return;
+    }
+
+    if (navigator.vibrate) {
+      navigator.vibrate(40);
+    }
+
+  } catch (e) {}
+}
+
+function successVibrate() {
+
+  try {
+
+    if (
+      tg &&
+      tg.HapticFeedback
+    ) {
+
+      tg.HapticFeedback
+        .notificationOccurred("success");
+
+      return;
+    }
+
+    if (navigator.vibrate) {
+
+      navigator.vibrate([
+        60,
+        50,
+        100
+      ]);
+
+    }
+
+  } catch (e) {}
+}
+
+/* =========================
+   XP
+========================= */
+
+function addXP(amount) {
+
+  xp += amount;
+
+  let leveledUp = false;
+
+  while (
+    xp >= level * 100
+  ) {
+
+    xp -= level * 100;
+    level++;
+
+    leveledUp = true;
+  }
+
+  if (leveledUp) {
+
+    message.textContent =
+      "🎉 Новый уровень!";
+
+    successVibrate();
+  }
+}
+
+/* =========================
+   PLAY
+========================= */
+
+async function playGame() {
+
+  if (playButton.disabled) {
+    return;
+  }
+
+  playButton.disabled = true;
+
+  message.textContent =
+    "🎲 Играем...";
+
+  reward.textContent = "";
+
+  reels.forEach(
+    reel =>
+      reel.classList.remove("win")
+  );
+
+  /* animation */
+
+  for (
+    let i = 0;
+    i < 12;
+    i++
+  ) {
+
+    reels.forEach(
+      reel => {
+        reel.textContent =
+          randomSymbol();
+      }
+    );
+
+    await sleep(65);
+  }
+
+  /* final result */
+
+  const result = [
+    randomSymbol(),
+    randomSymbol(),
+    randomSymbol()
+  ];
+
+  reels.forEach(
+    (reel, index) => {
+
+      reel.textContent =
+        result[index];
+
+    }
+  );
+
+  const unique =
+    new Set(result);
+
+  let points = 0;
+
+  /* three equal */
+
+  if (unique.size === 1) {
+
+    points = 100;
+
+    streak++;
+
+    message.textContent =
+      "🔥 ИДЕАЛЬНАЯ КОМБИНАЦИЯ!";
+
+    reward.textContent =
+      "+100 очков";
+
+    reels.forEach(
+      reel =>
+        reel.classList.add("win")
+    );
+
+    addXP(35);
+
+    successVibrate();
+
+  }
+
+  /* two equal */
+
+  else if (unique.size === 2) {
+
+    points = 30;
+
+    streak++;
+
+    message.textContent =
+      "✨ Хорошая комбинация!";
+
+    reward.textContent =
+      "+30 очков";
+
+    addXP(15);
+
+    vibrate();
+
+  }
+
+  /* no match */
+
+  else {
+
+    points = 5;
+
+    streak = 0;
+
+    message.textContent =
+      "🙂 Попробуй ещё!";
+
+    reward.textContent =
+      "+5 очков";
+
+    addXP(5);
+
+    vibrate();
+
+  }
+
+  score += points;
+
+  /* record */
+
+  if (score > best) {
+
+    best = score;
+
+    message.textContent =
+      "🏆 НОВЫЙ РЕКОРД!";
+
+    reward.textContent =
+      "+" + points + " очков";
+  }
+
+  save();
+
+  updateUI();
+
+  await sleep(250);
+
+  playButton.disabled = false;
+}
+
+/* =========================
+   ACHIEVEMENTS
+========================= */
+
+const achievementData = [
+
+  {
+    icon: "🎮",
+    name: "Первый запуск",
+    desc: "Сыграть первый раунд",
+    check: () => score > 0
+  },
+
+  {
+    icon: "🔥",
+    name: "Комбо x5",
+    desc: "Получить серию из 5",
+    check: () => streak >= 5
+  },
+
+  {
+    icon: "💎",
+    name: "100 очков",
+    desc: "Набрать 100 очков",
+    check: () => score >= 100
+  },
+
+  {
+    icon: "🏆",
+    name: "Рекордсмен",
+    desc: "Набрать 500 очков",
+    check: () => best >= 500
+  },
+
+  {
+    icon: "🚀",
+    name: "Уровень 5",
+    desc: "Достичь 5 уровня",
+    check: () => level >= 5
+  }
+
+];
+
+function renderAchievements() {
+
+  const container =
+    document.getElementById(
+      "achievements"
+    );
+
+  container.innerHTML = "";
+
+  achievementData.forEach(
+    item => {
+
+      const unlocked =
+        item.check();
+
+      const row =
+        document.createElement(
+          "div"
+        );
 
       row.className =
-        "achievement" + (unlocked ? "" : " locked");
+        "achievement" +
+        (
+          unlocked
+            ? ""
+            : " locked"
+        );
 
       row.innerHTML = `
+
         <div class="achievement-icon">
-          ${unlocked ? a.icon : "🔒"}
+          ${unlocked ? item.icon : "🔒"}
         </div>
 
         <div class="achievement-text">
+
           <div class="achievement-name">
-            ${a.name}
+            ${item.name}
           </div>
 
           <div class="achievement-desc">
-            ${a.desc}
+            ${item.desc}
           </div>
+
         </div>
+
       `;
 
       container.appendChild(row);
 
-    });
+    }
+  );
+}
 
+/* =========================
+   DAILY BONUS
+========================= */
+
+function getTodayKey() {
+
+  const now =
+    new Date();
+
+  const year =
+    now.getFullYear();
+
+  const month =
+    String(
+      now.getMonth() + 1
+    ).padStart(2, "0");
+
+  const day =
+    String(
+      now.getDate()
+    ).padStart(2, "0");
+
+  return (
+    year +
+    "-" +
+    month +
+    "-" +
+    day
+  );
+}
+
+function setupDaily() {
+
+  const button =
+    document.getElementById(
+      "dailyButton"
+    );
+
+  const today =
+    getTodayKey();
+
+  const lastDaily =
+    localStorage.getItem(
+      "ls_daily"
+    );
+
+  if (
+    lastDaily === today
+  ) {
+
+    button.disabled = true;
+
+    button.textContent =
+      "Получено";
   }
 
-  function setupDaily() {
-
-    const button = document.getElementById("dailyButton");
-
-    const today = new Date().toISOString().slice(0, 10);
-
-    const lastDaily =
-      localStorage.getItem("ls_daily");
-
-    if (lastDaily === today) {
-
-      button.disabled = true;
-      button.textContent = "Получено";
-
-    }
-
-    button.addEventListener("click", () => {
+  button.addEventListener(
+    "click",
+    () => {
 
       const current =
-        new Date().toISOString().slice(0, 10);
+        getTodayKey();
 
-      if (localStorage.getItem("ls_daily") === current)
+      if (
+        localStorage.getItem(
+          "ls_daily") === current
+      ) {
         return;
+      }
 
-      localStorage.setItem("ls_daily", current);
+      localStorage.setItem(
+        "ls_daily",
+        current
+      );
 
       score += 25;
+
       addXP(20);
 
       save();
+
       updateUI();
 
       button.disabled = true;
-      button.textContent = "Получено";
 
-      message.textContent = "🎁 Ежедневный бонус!";
-      reward.textContent = "+25 очков";
+      button.textContent =
+        "Получено";
 
-      vibrate([50, 50, 100]);
+      message.textContent =
+        "🎁 Ежедневный бонус!";
 
-    });
+      reward.textContent =
+        "+25 очков";
 
-  }
+      successVibrate();
 
-  function setupTelegramUser() {
-
-    if (!tg || !tg.initDataUnsafe) return;
-
-    const user = tg.initDataUnsafe.user;
-
-    if (!user) return;
-
-    let name = user.first_name || "Игрок";
-
-    if (name.length > 12) {
-      name = name.slice(0, 12) + "…";
     }
+  );
+}
 
-    document.getElementById("username").textContent =
-      "👤 " + name;
+/* =========================
+   TELEGRAM USER
+========================= */
+
+function setupTelegramUser() {
+
+  if (
+    !tg ||
+    !tg.initDataUnsafe
+  ) {
+    return;
   }
 
-  playButton.addEventListener("click", playGame);
+  const user =
+    tg.initDataUnsafe.user;
 
-  setupTelegramUser();
-  setupDaily();
-  updateUI();
+  if (!user) {
+    return;
+  }
+
+  let name =
+    user.first_name ||
+    "Игрок";
+
+  if (name.length > 14) {
+
+    name =
+      name.slice(0, 14) +
+      "…";
+  }
+
+  document.getElementById(
+    "username"
+  ).textContent =
+    "👤 " + name;
+}
+
+/* =========================
+   START
+========================= */
+
+playButton.addEventListener(
+  "click",
+  playGame
+);
+
+setupTelegramUser();
+
+setupDaily();
+
+updateUI();
 
 </script>
 
