@@ -1,0 +1,333 @@
+* {
+  box-sizing: border-box;
+}
+
+/* =========================
+   ОСНОВНЫЕ НАСТРОЙКИ
+========================= */
+
+:root {
+  --bg: #0d1020;
+  --card: #171b31;
+  --card2: #202641;
+
+  --text: #f7f8ff;
+  --muted: #9ca4c7;
+
+  --accent: #8b5cf6;
+  --accent2: #ec4899;
+
+  --gold: #facc15;
+}
+
+/* =========================
+   BODY
+========================= */
+
+body {
+  margin: 0;
+
+  min-height: 100vh;
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  color: var(--text);
+
+  background:
+    radial-gradient(
+      circle at 20% 0%,
+      rgba(139, 92, 246, 0.28),
+      transparent 35%
+    ),
+
+    radial-gradient(
+      circle at 100% 20%,
+      rgba(236, 72, 153, 0.20),
+      transparent 30%
+    ),
+
+    var(--bg);
+}
+
+button {
+  font: inherit;
+}
+
+/* =========================
+   ПРИЛОЖЕНИЕ
+========================= */
+
+.app {
+  width: min(100% - 28px, 520px);
+
+  margin: 0 auto;
+
+  padding:
+    28px
+    0
+    24px;
+}
+
+/* =========================
+   ВЕРХНЯЯ ПАНЕЛЬ
+========================= */
+
+.topbar {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 18px;
+}
+
+.eyebrow {
+  color: #a78bfa;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.22em;
+}
+
+h1 {
+  margin: 4px 0 0;
+
+  font-size: 28px;
+}
+
+/* =========================
+   СЧЁТ
+========================= */
+
+.score-box {
+  min-width: 86px;
+
+  padding:
+    9px
+    12px;
+
+  text-align: center;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.09);
+
+  border-radius: 14px;
+
+  background:
+    rgba(255, 255, 255, 0.05);
+}
+
+.score-box span,
+.stat span {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+}
+
+.score-box strong {
+  display: block;
+
+  margin-top: 2px;
+
+  font-size: 22px;
+}
+
+/* =========================
+   КАРТОЧКА ИГРЫ
+========================= */
+
+.card {
+  padding: 20px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+
+  border-radius: 26px;
+
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.07),
+      rgba(255, 255, 255, 0.025)
+    );
+
+  box-shadow:
+    0 24px 70px
+    rgba(0, 0, 0, 0.28);
+}
+
+/* =========================
+   СТАТУС
+========================= */
+
+.status {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 16px;
+
+  color: var(--muted);
+
+  font-size: 13px;
+}
+
+.streak b {
+  color: var(--gold);
+}
+
+/* =========================
+   БАРАБАНЫ
+========================= */
+
+.reels {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 10px;
+
+  padding: 12px;
+
+  border-radius: 22px;
+
+  background: #0a0d18;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+}
+
+.reel {
+  display: grid;
+
+  place-items: center;
+
+  min-height: 112px;
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #2a3153,
+      #171b31
+    );
+
+  font-size:
+    clamp(
+      44px,
+      15vw,
+      72px
+    );
+
+  box-shadow:
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.08);
+
+  user-select: none;
+}
+
+/* =========================
+   АНИМАЦИЯ ВРАЩЕНИЯ
+========================= */
+
+.reel.spinning {
+  animation:
+    shake 0.09s
+    linear
+    infinite;
+}
+
+@keyframes shake {
+
+  0% {
+    transform: translateY(-2px);
+  }
+
+  50% {
+    transform: translateY(2px);
+  }
+
+  100% {
+    transform: translateY(-2px);
+  }
+
+}
+
+/* =========================
+   АНИМАЦИЯ ПОБЕДЫ
+========================= */
+
+.reel.win {
+  animation:
+    win 0.45s
+    ease;
+}
+
+@keyframes win {
+
+  50% {
+
+    transform:
+      scale(1.08);
+
+    box-shadow:
+      0 0 30px
+      rgba(250, 204, 21, 0.35);
+
+  }
+
+}
+
+/* =========================
+   КНОПКА
+========================= */
+
+.play-button {
+
+  width: 100%;
+
+  margin:
+    18px
+    0;
+
+  padding: 16px;
+
+  border: 0;
+
+  border-radius: 17px;
+
+  color: white;
+
+  font-size: 16px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.08em;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--accent),
+      var(--accent2)

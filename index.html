@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- Чтобы нормально выглядело на телефоне -->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
+
+  <title>Lucky Arcade</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <main class="app">
+
+    <!-- Верхняя часть -->
+    <header class="topbar">
+
+      <div>
+        <div class="eyebrow">ARCADE</div>
+        <h1>Lucky Arcade</h1>
+      </div>
+
+      <div class="score-box">
+        <span>ОЧКИ</span>
+        <strong id="score">0</strong>
+      </div>
+
+    </header>
+
+    <!-- Основная игра -->
+    <section class="card">
+
+      <div class="status">
+
+        <span id="message">
+          Готов? Жми!
+        </span>
+
+        <span class="streak">
+          Серия: <b id="streak">0</b> 🔥
+        </span>
+
+      </div>
+
+      <!-- Барабаны -->
+      <div class="reels">
+
+        <div class="reel" id="reel1">
+          🍒
+        </div>
+
+        <div class="reel" id="reel2">
+          ⭐
+        </div>
+
+        <div class="reel" id="reel3">
+          💎
+        </div>
+
+      </div>
+
+      <!-- Кнопка -->
+      <button id="playButton" class="play-button">
+        ИГРАТЬ
+      </button>
+
+      <!-- Таблица очков -->
+      <div class="rules">
+
+        <div>
+          <span>⭐</span>
+          <span>3 одинаковых</span>
+          <b>+100</b>
+        </div>
+
+        <div>
+          <span>💎</span>
+          <span>3 одинаковых</span>
+          <b>+250</b>
+        </div>
+
+        <div>
+          <span>🍒</span>
+          <span>3 одинаковых</span>
+          <b>+150</b>
+        </div>
+
+        <div>
+          <span>🍀</span>
+          <span>3 одинаковых</span>
+          <b>+200</b>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Статистика -->
+    <section class="stats">
+
+      <div class="stat">
+        <span>Лучший счёт</span>
+        <b id="best">0</b>
+      </div>
+
+      <div class="stat">
+        <span>Раундов</span>
+        <b id="rounds">0</b>
+      </div>
+
+    </section>
+
+    <p class="note">
+      Аркадная мини-игра без ставок, денег и покупок.
+    </p>
+
+  </main>
+
+  <script src="app.js"></script>
+
+</body>
+</html>
