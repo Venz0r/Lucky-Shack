@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#030705">
 <meta name="description" content="LuckyShack Arcade 4.1">
 <!-- LUCKYSHACK_OFFICIAL_BUILD: LS41-MW-OWNER -->
-<!-- Source marker: LuckyShack 4.1 | Owner: @matwaysr | Arcade build -->
-<title>LuckyShack 4.1</title>
+<!-- Source marker: LuckyShack 4.8 | Owner: @matwaysr | Arcade build -->
+<title>LuckyShack 4.8</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{--bg:#030705;--panel:#07110c;--panel2:#0a1710;--line:#123c26;--text:#effff5;--muted:#83a895;--pink:#35ff8a;--violet:#00d66f;--cyan:#5cffb0;--green:#35ff8a;--gold:#d7ff63;--danger:#ff5d7a;--shadow:0 14px 40px rgba(0,255,110,.08)}
@@ -48,17 +48,41 @@ body{background:radial-gradient(circle at 50% -15%,#0b321d 0,#041009 38%,#030705
 .sectionTitle{color:#dffff0}.gamecard{background:linear-gradient(145deg,#0b2113,#061009);border-color:#15542f;box-shadow:0 18px 55px #0009}.reel{background:radial-gradient(circle at 50% 35%,#10291a,#020604 70%);border-color:#1b6138;box-shadow:inset 0 0 30px #000,0 8px 22px #0008}.primary{background:linear-gradient(100deg,#00a957,#35ff8a)!important;color:#031008!important;box-shadow:0 12px 32px #35ff8a30!important}.secondary{background:#0a1b10;border-color:#185532}.result{color:#d7ff63}.bigscore{color:#35ff8a}.profile{background:linear-gradient(145deg,#0a1d11,#061009);border-color:#15542f}.levelbar{background:#0a1b10}.levelbar i{background:linear-gradient(90deg,#00b85c,#35ff8a)}
 .row,.empty{background:#07130c;border-color:#123c26}.mini{background:#0d2616}.score{color:#5cffb0}.footer{background:#020604ee;border-top-color:#123c26}.nav{color:#638a73}.nav.active{color:#35ff8a;text-shadow:0 0 14px #35ff8a66}.toast{background:#07180d;border-color:#1d7040;box-shadow:0 10px 35px #0009}.wheelHero{background:radial-gradient(circle at 50% 28%,#12361d 0,#08180e 48%,#040906 100%);border-color:#267044;box-shadow:0 25px 75px #0009,0 0 35px #35ff8a12}.wheelDisc{border-color:#173b24;box-shadow:0 0 0 3px #9bd65b,0 0 45px #35ff8a25,inset 0 0 35px #000;background:conic-gradient(#15803d 0 10deg,#111712 10deg 20deg,#15803d 20deg 30deg,#111712 30deg 40deg,#15803d 40deg 50deg,#111712 50deg 60deg,#15803d 60deg 70deg,#111712 70deg 80deg,#15803d 80deg 90deg,#111712 90deg 100deg,#15803d 100deg 110deg,#111712 110deg 120deg,#15803d 120deg 130deg,#111712 130deg 140deg,#15803d 140deg 150deg,#111712 150deg 160deg,#15803d 160deg 170deg,#111712 170deg 180deg,#15803d 180deg 190deg,#111712 190deg 200deg,#15803d 200deg 210deg,#111712 210deg 220deg,#15803d 220deg 230deg,#111712 230deg 240deg,#15803d 240deg 250deg,#111712 250deg 260deg,#15803d 260deg 270deg,#111712 270deg 280deg,#15803d 280deg 290deg,#111712 290deg 300deg,#15803d 300deg 310deg,#111712 310deg 320deg,#15803d 320deg 330deg,#111712 330deg 340deg,#15803d 340deg 350deg,#111712 350deg 360deg)}
 .betChoice.red{background:linear-gradient(145deg,#12351f,#0a1a10);border-color:#277044}.betChoice.black{background:linear-gradient(145deg,#18201b,#0b100d);border-color:#405247}.betChoice.active{box-shadow:0 0 0 2px #d7ff63,0 0 25px #35ff8a22}.betAmount{background:#07170d;border-color:#16482b}.betAmount.active{border-color:#35ff8a;color:#35ff8a}.wheelStatus{color:#d7ff63}.wheelLock{background:#061009;border-color:#185532;color:#8bb49a}.progressPill{border-color:#16482b;background:#061009}.progressPill b{color:#d7ff63}
+
+/* ROULETTE COLOR SAFETY OVERRIDES — roulette keeps real casino colors */
+.wheelHero .wheelDisc{background:conic-gradient(
+ #c6283f 0 10deg,#151515 10deg 20deg,#c6283f 20deg 30deg,#151515 30deg 40deg,#c6283f 40deg 50deg,#151515 50deg 60deg,#c6283f 60deg 70deg,#151515 70deg 80deg,#c6283f 80deg 90deg,#151515 90deg 100deg,#c6283f 100deg 110deg,#151515 110deg 120deg,#c6283f 120deg 130deg,#151515 130deg 140deg,#c6283f 140deg 150deg,#151515 150deg 160deg,#c6283f 160deg 170deg,#151515 170deg 180deg,#c6283f 180deg 190deg,#151515 190deg 200deg,#c6283f 200deg 210deg,#151515 210deg 220deg,#c6283f 220deg 230deg,#151515 230deg 240deg,#c6283f 240deg 250deg,#151515 250deg 260deg,#c6283f 260deg 270deg,#151515 270deg 280deg,#c6283f 280deg 290deg,#151515 290deg 300deg,#c6283f 300deg 310deg,#151515 310deg 320deg,#c6283f 320deg 330deg,#151515 330deg 340deg,#c6283f 340deg 350deg,#151515 350deg 360deg);}
+.wheelHero .betChoice.red{background:linear-gradient(145deg,#5a1825,#280c13);border-color:#b83a50;color:#fff;}
+.wheelHero .betChoice.black{background:linear-gradient(145deg,#242424,#0b0b0b);border-color:#666;color:#fff;}
+.wheelHero .betChoice.red.active{box-shadow:0 0 0 2px #ff4b62,0 0 25px #ff334455;}
+.wheelHero .betChoice.black.active{box-shadow:0 0 0 2px #d9d9d9,0 0 25px #ffffff22;}
+.wheelLegend{display:flex;justify-content:center;gap:14px;margin:-4px 0 10px;font-size:11px;font-weight:800}.wheelLegend span{display:inline-flex;align-items:center;gap:5px}.wheelLegend i{width:10px;height:10px;border-radius:50%;display:inline-block}.wheelLegend .r{background:#c6283f}.wheelLegend .b{background:#151515;border:1px solid #777}.wheelLegend .g{background:#15803d}
+/* ARCADE MODE CARDS */
+.modePreview{height:104px;border-radius:16px;margin-bottom:10px;overflow:hidden;position:relative;border:1px solid #1d5b35;background:#050b07}.modePreview:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,#000b 100%)}
+.previewIcon{position:absolute;inset:0;display:grid;place-items:center;font-size:46px;z-index:1;filter:drop-shadow(0 0 14px #35ff8a88)}
+.previewBadge{position:absolute;left:8px;top:8px;z-index:2;font-size:8px;font-weight:950;letter-spacing:1px;padding:5px 7px;border-radius:99px;background:#06120bda;border:1px solid #2c9b57;color:#a9ffc5}
+.previewClassic{background:radial-gradient(circle at 50% 40%,#1d6b3c,#06130b 68%)}.previewTime{background:radial-gradient(circle at 50% 40%,#174c72,#06100f 68%)}.previewTarget{background:radial-gradient(circle at 50% 40%,#6a4b13,#101006 68%)}.previewWheel{background:radial-gradient(circle at 50% 40%,#6b1d2a,#0b0809 68%)}.previewRush{background:radial-gradient(circle at 50% 40%,#3b1c72,#080611 68%)}.previewDouble{background:radial-gradient(circle at 50% 40%,#12645d,#03100e 68%)}.previewMemory{background:radial-gradient(circle at 50% 40%,#6b3150,#10060c 68%)}
+.arcadeGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.arcadeSection{margin-top:20px}.mode .modePreview{margin:-2px -2px 10px}.mode{min-height:0;padding:10px}.mode b{font-size:14px}.mode span{min-height:28px}
+.mode .previewIcon{animation:previewFloat 2.5s ease-in-out infinite}@keyframes previewFloat{50%{transform:translateY(-4px) scale(1.04)}}
 </style>
 </head>
 <body>
-<div id="loading"><div class="loadbox"><div class="cat">😼</div><div class="loadtitle">LuckyShack</div><div class="loadsub">ARCADE 4.1</div><div class="bar"><i id="loadbar"></i></div><div class="loadstep" id="loadstep">Подключение...</div></div></div>
+<div id="loading"><div class="loadbox"><div class="cat">😼</div><div class="loadtitle">LuckyShack</div><div class="loadsub">ARCADE 4.8</div><div class="bar"><i id="loadbar"></i></div><div class="loadstep" id="loadstep">Подключение...</div></div></div>
 <div id="app"><div class="wrap">
-<header class="header"><div class="brand">LuckyShack<small>ARCADE 4.1</small></div><div class="user"><div class="avatar" id="avatar">L</div><div class="uname" id="headerUser">Игрок</div></div></header>
-<section id="home" class="screen active"><div class="hero"><div class="eyebrow">LUCKYSHACK ARCADE</div><div class="h1">Играй. Набирай очки.<br>Открывай достижения.</div><div class="balanceBox"><div><small>ТВОЙ ИГРОВОЙ БАЛАНС</small><div class="num" id="homeBalance">0</div></div><div style="text-align:right"><small>ПОЗИЦИЯ</small><div class="num" id="homeRank">—</div></div></div><div class="stats"><div class="stat"><b id="homeScore">0</b><span>ОЧКИ</span></div><div class="stat"><b id="homeBest">0</b><span>РЕКОРД</span></div><div class="stat"><b id="homeLevel">1</b><span>УРОВЕНЬ</span></div></div></div><div class="sectionTitle">Режимы</div><div class="grid"><button class="mode" onclick="openScreen('classic')"><div class="ico">🎰</div><b>Classic</b><span>Классический спин и серия</span></button><button class="mode" onclick="openScreen('time')"><div class="ico">⏱️</div><b>Time</b><span>Набери максимум за 30 секунд</span></button><button class="mode" onclick="openScreen('target')"><div class="ico">🎯</div><b>Target</b><span>Собери совпадения цели</span></button><button class="mode" onclick="openScreen('achievements')"><div class="ico">🏆</div><b>Достижения</b><span>Забирай награды за прогресс</span></button><button class="mode wheelMode" onclick="openScreen('wheel')"><div class="ico">🎡</div><b>Колесо Фортуны</b><span>Ставки на красное или чёрное</span></button></div><div class="sectionTitle">Ежедневный бонус</div><div class="gamecard"><div id="dailyText">+50 XP за первый вход сегодня</div><button class="primary" id="dailyBtn" style="margin-top:10px" onclick="claimDaily()">Забрать +50 XP</button></div></section>
+<header class="header"><div class="brand">LuckyShack<small>ARCADE 4.8</small></div><div class="user"><div class="avatar" id="avatar">L</div><div class="uname" id="headerUser">Игрок</div></div></header>
+<section id="home" class="screen active"><div class="hero"><div class="eyebrow">LUCKYSHACK ARCADE</div><div class="h1">Играй. Набирай очки.<br>Открывай достижения.</div><div class="balanceBox"><div><small>ТВОЙ ИГРОВОЙ БАЛАНС</small><div class="num" id="homeBalance">0</div></div><div style="text-align:right"><small>ПОЗИЦИЯ</small><div class="num" id="homeRank">—</div></div></div><div class="stats"><div class="stat"><b id="homeScore">0</b><span>ОЧКИ</span></div><div class="stat"><b id="homeBest">0</b><span>РЕКОРД</span></div><div class="stat"><b id="homeLevel">1</b><span>УРОВЕНЬ</span></div></div></div><div class="sectionTitle">🎮 Аркада</div><div class="arcadeGrid">
+<button class="mode" onclick="openScreen('classic')"><div class="modePreview previewClassic"><div class="previewBadge">POPULAR</div><div class="previewIcon">🎰</div></div><b>Classic</b><span>Серия спинов и джекпот</span></button>
+<button class="mode" onclick="openScreen('time')"><div class="modePreview previewTime"><div class="previewBadge">30 SEC</div><div class="previewIcon">⏱️</div></div><b>Time Rush</b><span>Максимум очков за время</span></button>
+<button class="mode" onclick="openScreen('target')"><div class="modePreview previewTarget"><div class="previewBadge">SKILL</div><div class="previewIcon">🎯</div></div><b>Target</b><span>Охота за совпадениями</span></button>
+<button class="mode" onclick="toast('⚡ Rush 15 — новый режим в разработке')"><div class="modePreview previewRush"><div class="previewBadge">NEW</div><div class="previewIcon">⚡</div></div><b>Rush 15</b><span>15 секунд — риск ради серии</span></button>
+<button class="mode" onclick="toast('🪙 Double — новый режим в разработке')"><div class="modePreview previewDouble"><div class="previewBadge">RISK</div><div class="previewIcon">🪙</div></div><b>Double</b><span>Рискни и удвой награду</span></button>
+<button class="mode" onclick="toast('🧠 Memory — новый режим в разработке')"><div class="modePreview previewMemory"><div class="previewBadge">NEW</div><div class="previewIcon">🧠</div></div><b>Memory</b><span>Запомни комбинацию</span></button>
+<button class="mode wheelMode" onclick="openScreen('wheel')"><div class="modePreview previewWheel"><div class="previewBadge">UNLOCKED</div><div class="previewIcon">🎡</div></div><b>Колесо Фортуны</b><span>Красное / чёрное</span></button>
+<button class="mode" onclick="openScreen('achievements')"><div class="modePreview previewClassic"><div class="previewBadge">PROGRESS</div><div class="previewIcon">🏆</div></div><b>Достижения</b><span>Награды за прогресс</span></button></div><div class="sectionTitle">Ежедневный бонус</div><div class="gamecard"><div id="dailyText">+50 XP за первый вход сегодня</div><button class="primary" id="dailyBtn" style="margin-top:10px" onclick="claimDaily()">Забрать +50 XP</button></div></section>
 <section id="classic" class="screen"><div class="sectionTitle">🎰 Classic</div><div class="gamecard"><div class="muted">Собери три одинаковых символа</div><div class="reels"><div class="reel" id="c1">🍒</div><div class="reel" id="c2">🍋</div><div class="reel" id="c3">🍊</div></div><div class="result" id="classicResult"></div><button class="primary" id="classicBtn" onclick="spinClassic()">КРУТИТЬ</button><div class="muted" style="margin-top:12px;font-size:11px">Серия: <b id="classicStreak">0</b> · Игры: <b id="classicGames">0</b></div></div></section>
 <section id="time" class="screen"><div class="sectionTitle">⏱️ Time</div><div class="gamecard"><div class="timer" id="timeLeft">30</div><div class="muted">секунд</div><div class="bigscore" id="timeScore">0</div><div class="reels"><div class="reel" id="t1">🍒</div><div class="reel" id="t2">🍋</div><div class="reel" id="t3">🍊</div></div><div class="result" id="timeResult"></div><button class="primary" id="timeBtn" onclick="timeAction()">НАЧАТЬ</button></div></section>
 <section id="target" class="screen"><div class="sectionTitle">🎯 Target</div><div class="gamecard"><div class="muted">Твоя цель</div><div class="target" id="targetSymbol">🎯</div><div class="muted">Попаданий: <b id="targetHits">0</b> / 3</div><div class="reels"><div class="reel" id="g1">🍒</div><div class="reel" id="g2">🍋</div><div class="reel" id="g3">🍊</div></div><div class="result" id="targetResult"></div><button class="primary" id="targetBtn" onclick="spinTarget()">ИСКАТЬ ЦЕЛЬ</button></div></section>
-<section id="wheel" class="screen"><div class="sectionTitle">🎡 Колесо Фортуны</div><div class="wheelHero"><div class="wheelTop"><div style="text-align:left"><div style="font-size:20px;font-weight:950">Красное или чёрное</div><div class="muted" style="font-size:11px;margin-top:3px">Угадай цвет и получи 2× ставки</div></div><div class="wheelBadge">LIVE WHEEL</div></div><div class="wheelWrap"><div class="wheelPointer">▼</div><div class="wheelDisc" id="wheelDisc"></div></div><div class="wheelStatus" id="wheelStatus">Выбери цвет и размер ставки</div><div class="wheelChoices"><button class="betChoice red" id="betRed" onclick="selectWheelColor('red')">🔴 КРАСНОЕ</button><button class="betChoice black" id="betBlack" onclick="selectWheelColor('black')">⚫ ЧЁРНОЕ</button></div><div class="betRow"><button class="betAmount" onclick="selectWheelBet(10,this)">10</button><button class="betAmount" onclick="selectWheelBet(25,this)">25</button><button class="betAmount" onclick="selectWheelBet(50,this)">50</button></div><button class="primary" id="wheelSpinBtn" onclick="spinWheel()">КРУТИТЬ КОЛЕСО</button><div class="progressPill"><span>Баланс</span><b id="wheelBalance">0 очков</b></div></div><div class="sectionTitle">Как открыть</div><div id="wheelLock" class="wheelLock">🎟️ Сыграй минимум <b>3 серверных раунда</b> и накопи <b>25 очков</b>. После этого ставки станут доступны.</div></section>
+<section id="wheel" class="screen"><div class="sectionTitle">🎡 Колесо Фортуны</div><div class="wheelHero"><div class="wheelTop"><div style="text-align:left"><div style="font-size:20px;font-weight:950">Красное или чёрное</div><div class="muted" style="font-size:11px;margin-top:3px">Угадай цвет и получи 2× ставки</div></div><div class="wheelBadge">LIVE WHEEL</div></div><div class="wheelWrap"><div class="wheelPointer">▼</div><div class="wheelDisc" id="wheelDisc"></div></div><div class="wheelLegend"><span><i class="r"></i>Красное</span><span><i class="b"></i>Чёрное</span><span><i class="g"></i>0 — зелёное</span></div><div class="wheelStatus" id="wheelStatus">Выбери цвет и размер ставки</div><div class="wheelChoices"><button class="betChoice red" id="betRed" onclick="selectWheelColor('red')">🔴 КРАСНОЕ</button><button class="betChoice black" id="betBlack" onclick="selectWheelColor('black')">⚫ ЧЁРНОЕ</button></div><div class="betRow"><button class="betAmount" onclick="selectWheelBet(10,this)">10</button><button class="betAmount" onclick="selectWheelBet(25,this)">25</button><button class="betAmount" onclick="selectWheelBet(50,this)">50</button></div><button class="primary" id="wheelSpinBtn" onclick="spinWheel()">КРУТИТЬ КОЛЕСО</button><div class="progressPill"><span>Баланс</span><b id="wheelBalance">0 очков</b></div></div><div class="sectionTitle">Как открыть</div><div id="wheelLock" class="wheelLock">🎟️ Сыграй минимум <b>3 серверных раунда</b> и накопи <b>25 очков</b>. После этого ставки станут доступны.</div></section>
 <section id="profile" class="screen"><div class="sectionTitle">👤 Профиль</div><div class="profile"><div class="bigavatar" id="profileAvatar">L</div><div><div style="font-size:20px;font-weight:950" id="profileName">Игрок</div><div class="muted" id="profileTag">@player</div><div style="margin-top:8px;font-size:12px">Уровень <b id="profileLevel">1</b> · <span id="profileXP">0</span> XP</div><div class="levelbar"><i id="xpbar"></i></div></div></div><div class="balanceBox"><div><small>ИГРОВЫЕ ОЧКИ</small><div class="num" id="profileBalance">0</div></div><div style="text-align:right"><small>РЕЙТИНГ</small><div class="num" id="profileRank">—</div></div></div><div class="profileMeta"><div class="stat"><b id="pGames">0</b><span>ИГР</span></div><div class="stat"><b id="pBest">0</b><span>РЕКОРД</span></div><div class="stat"><b id="pStreak">0</b><span>МАКС. СЕРИЯ</span></div></div></section>
 <section id="userProfile" class="screen"><div class="sectionTitle">👤 Профиль игрока</div><div class="profile"><div class="bigavatar" id="viewAvatar">L</div><div><div style="font-size:20px;font-weight:950" id="viewName">Игрок</div><div class="muted" id="viewTag">@player</div><div style="margin-top:8px;font-size:12px">Уровень <b id="viewLevel">1</b></div></div></div><div class="balanceBox"><div><small>ИГРОВЫЕ ОЧКИ</small><div class="num" id="viewBalance">0</div></div><div style="text-align:right"><small>ПОЗИЦИЯ</small><div class="num" id="viewRank">—</div></div></div><div class="profileMeta"><div class="stat"><b id="viewGames">0</b><span>ИГР</span></div><div class="stat"><b id="viewBest">0</b><span>РЕКОРД</span></div><div class="stat"><b id="viewRegistered">—</b><span>РЕГИСТРАЦИЯ</span></div></div></section>
 <section id="achievements" class="screen"><div class="sectionTitle">🏆 Достижения</div><div class="list" id="achList"></div></section>
@@ -66,11 +90,11 @@ body{background:radial-gradient(circle at 50% -15%,#0b321d 0,#041009 38%,#030705
 </div><nav class="footer"><button class="nav active" data-screen="home" onclick="openScreen('home')"><i>🏠</i>Главная</button><button class="nav" data-screen="classic" onclick="openScreen('classic')"><i>🎰</i>Classic</button><button class="nav" data-screen="time" onclick="openScreen('time')"><i>⏱️</i>Time</button><button class="nav" data-screen="wheel" onclick="openScreen('wheel')"><i>🎡</i>Колесо</button><button class="nav" data-screen="profile" onclick="openScreen('profile')"><i>👤</i>Профиль</button><button class="nav" data-screen="leaderboard" onclick="openScreen('leaderboard')"><i>🏆</i>Рейтинг</button></nav></div>
 <div class="toast" id="toast"></div>
 <script>
-/* LUCKYSHACK 4.1 BUILD MARKER — LS41-MW-OWNER */
+/* LUCKYSHACK 4.8 BUILD MARKER — LS41-MW-OWNER */
 /* Owner status comes from the verified Supabase Edge Function. */
-const LUCKYSHACK_BUILD={version:'4.5.0',buildId:'LS450-ARCADE-RANKING',storageKey:'luckyshack_v41',authUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/telegram-auth',gameUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/game'};
+const LUCKYSHACK_BUILD={version:'4.8.0',buildId:'LS480-SERVER-AUTHORITATIVE',storageKey:'luckyshack_v41',authUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/telegram-auth',gameUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/game'};
 const LEGACY_KEY='luckyshack_v4';
-const symbols=['🍒','🍋','🍊','⭐','💎','🍀','🔔','7️⃣'];
+const symbols=['🍒','🍋','🍊','🍇','⭐','💎','7️⃣'];
 const achievements=[
 {id:'first',icon:'🚀',title:'Первый запуск',desc:'Сыграй первую игру',ok:d=>d.games>=1},
 {id:'combo5',icon:'🔥',title:'На волне',desc:'Собери серию x5',ok:d=>d.maxStreak>=5},
@@ -97,25 +121,62 @@ function avatarLetter(){return (userName().trim()[0]||'L').toUpperCase()}
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2200)}
 function haptic(type='light'){try{tg?.HapticFeedback?.impactOccurred(type)}catch(e){}}
 
-async function cloudGet(){if(!tg?.CloudStorage)return null;return new Promise(resolve=>tg.CloudStorage.getItem('luckyshack_data',(err,val)=>{if(err||!val)return resolve(null);try{resolve(JSON.parse(val))}catch(e){resolve(null)}}))}
-function cloudSaveNow(){if(!tg?.CloudStorage)return Promise.resolve();return new Promise(resolve=>tg.CloudStorage.setItem('luckyshack_data',JSON.stringify(data),()=>resolve()))}
+async function cloudGet(){return null}
+function cloudSaveNow(){return Promise.resolve()}
 function saveLocal(){try{localStorage.setItem(LUCKYSHACK_BUILD.storageKey,JSON.stringify({...data,_savedAt:Date.now(),_build:LUCKYSHACK_BUILD.version}))}catch(e){}}
 function readLocal(key){try{const v=localStorage.getItem(key);return v?JSON.parse(v):null}catch(e){return null}}
-function queueSave(){saveLocal();clearTimeout(saveTimer);saveTimer=setTimeout(()=>cloudSaveNow(),250)}
-async function saveData(){saveLocal();clearTimeout(saveTimer);saveTimer=setTimeout(()=>cloudSaveNow(),120)}
+function queueSave(){saveLocal()}
+async function saveData(){saveLocal()}
 
 async function loadData(){
- let local=readLocal(LUCKYSHACK_BUILD.storageKey);let legacy=readLocal(LEGACY_KEY);let cloud=await cloudGet();
- if(!local&&legacy)local=legacy;
- const candidates=[local,cloud].filter(Boolean).map(normalizeData);
- if(candidates.length)data=candidates.sort((a,b)=>(a.score+a.xp+a.games)-(b.score+b.xp+b.games)).pop();
- if(!local&&legacy){try{localStorage.setItem(LUCKYSHACK_BUILD.storageKey,JSON.stringify(data))}catch(e){}}
+  const local=readLocal(LUCKYSHACK_BUILD.storageKey)||readLocal(LEGACY_KEY);
+  if(local){
+    const d=normalizeData(local);
+    // Local storage is UI/cache only. Server statistics are loaded afterwards and always win.
+    data.dailyClaimed=Boolean(d.dailyClaimed);
+    data.dailyDate=String(d.dailyDate||'');
+    data.achievements=Array.isArray(d.achievements)?d.achievements:[];
+  }
 }
-function addScore(n){data.score+=safeInt(n);if(data.score>data.best)data.best=data.score}
-function addXP(n){let amount=safeInt(n);data.xp+=amount;while(data.xp>=data.level*100){data.xp-=data.level*100;data.level++;toast('⭐ Новый уровень: '+data.level);haptic('medium')}}
-function checkDaily(){const today=new Date().toISOString().slice(0,10);if(data.dailyDate!==today){data.dailyDate=today;data.dailyClaimed=false;queueSave()}}
-function claimDaily(){checkDaily();if(data.dailyClaimed)return toast('Бонус уже забран сегодня');data.dailyClaimed=true;addXP(50);queueSave();updateUI();toast('🎁 Получено +50 XP');haptic('medium')}
-function checkAchievements(){let unlocked=[];for(const a of achievements){if(!data.achievements.includes(a.id)&&a.ok(data)){data.achievements.push(a.id);addXP(25);unlocked.push(a)}}if(unlocked.length){queueSave();setTimeout(()=>toast('🏆 Достижение: '+unlocked[0].title),100)}}
+function addScore(n){data.score=Math.max(0,data.score+safeInt(n))}
+function addXP(n){data.xp=Math.max(0,data.xp+safeInt(n));data.level=Math.max(1,Math.floor(data.xp/100)+1)}
+function checkDaily(){return data.dailyClaimed}
+let achievementSyncBusy=false;
+async function checkAchievements(){
+  if(achievementSyncBusy)return;
+  achievementSyncBusy=true;
+  try{
+    for(const a of achievements){
+      if(data.achievements.includes(a.id)||!a.ok(data))continue;
+      try{
+        const r=await serverApi('achievement_claim',{achievement_id:a.id});
+        if(r.ok&&!data.achievements.includes(a.id)){
+          data.achievements.push(a.id);
+          if(r.total_xp!=null)data.xp=safeInt(r.total_xp);
+          data.level=Math.max(1,safeInt(r.level,Math.floor(data.xp/100)+1));
+          toast('🏆 Достижение: '+a.title);
+        }
+      }catch(e){if(e.message!=='ACHIEVEMENT_NOT_READY'&&e.message!=='INVALID_ACHIEVEMENT')console.warn('Achievement sync:',e.message)}
+    }
+    saveLocal();
+  }finally{achievementSyncBusy=false}
+}
+async function claimDaily(){
+  if(data.dailyClaimed)return toast('Бонус уже забран сегодня');
+  const btn=document.getElementById('dailyBtn');
+  if(btn)btn.disabled=true;
+  try{
+    const r=await serverApi('daily_claim');
+    data.dailyClaimed=true;data.dailyDate=new Date().toISOString().slice(0,10);
+    if(r.total_xp!=null)data.xp=safeInt(r.total_xp);
+    data.level=Math.max(1,safeInt(r.level,Math.floor(data.xp/100)+1));
+    saveLocal();updateUI();await checkAchievements();updateUI();toast('🎁 Получено +50 XP');haptic('medium');
+  }catch(e){
+    if(e.message==='DAILY_ALREADY_CLAIMED'){data.dailyClaimed=true;updateUI();toast('Бонус уже забран сегодня')}
+    else {toast('⚠️ Не удалось получить бонус');if(btn)btn.disabled=false}
+  }
+}
+
 function setText(id,v){const e=document.getElementById(id);if(e)e.textContent=v}
 
 async function serverApi(action, extra={}){
@@ -158,10 +219,9 @@ async function openPublicProfile(id){
  }catch(e){toast('⚠️ Не удалось открыть профиль')}
 }
 function updateUI(){
- checkDaily();checkAchievements();
  setText('homeScore',data.score);setText('homeBalance',data.score);setText('homeBest',data.best);setText('homeLevel',data.level);setText('wheelBalance',data.score+' очков');const wheelOpen=data.games>=WHEEL_UNLOCK_GAMES&&data.score>=WHEEL_MIN_BALANCE;const wb=document.getElementById('wheelSpinBtn');if(wb)wb.disabled=!wheelOpen||!wheelColor||wheelBet>data.score||wheelBusy;const wl=document.getElementById('wheelLock');if(wl)wl.innerHTML=wheelOpen?'🔓 Колесо открыто. Выбери цвет и ставку.':'🎟️ До открытия: <b>'+Math.max(0,WHEEL_UNLOCK_GAMES-data.games)+'</b> серверных раунда · ещё <b>'+Math.max(0,WHEEL_MIN_BALANCE-data.score)+'</b> очков.';setText('profileBalance',data.score);setText('profileRank',social.rank??'—');
  setText('profileName',userName());document.getElementById('profileName').insertAdjacentHTML('beforeend',ownerBadge());setText('profileTag',username());setText('profileLevel',data.level);setText('profileXP',data.xp);setText('pScore',data.score);setText('pBest',data.best);setText('pGames',data.games);setText('pStreak',data.maxStreak);setText('classicStreak',data.streak);setText('classicGames',data.games);setText('timeScore',timeScore);setText('targetHits',targetHits);
- const need=data.level*100;document.getElementById('xpbar').style.width=Math.min(100,data.xp/need*100)+'%';
+ const xpIntoLevel=data.xp%100;document.getElementById('xpbar').style.width=xpIntoLevel+'%';
  const daily=document.getElementById('dailyBtn');if(data.dailyClaimed){daily.disabled=true;daily.textContent='Бонус получен сегодня';setText('dailyText','Возвращайся завтра за новым бонусом')}else{daily.disabled=false;daily.textContent='Забрать +50 XP';setText('dailyText','+50 XP за первый вход сегодня')}
  document.getElementById('headerUser').innerHTML=escapeHTML(userName())+ownerBadge();document.getElementById('avatar').textContent=avatarLetter();document.getElementById('profileAvatar').textContent=avatarLetter();
  updateAchievements();updateLeaderboard();
@@ -211,10 +271,12 @@ async function spinClassic(){
   data.games=safeInt(game.games);
   data.streak=safeInt(game.streak);
   data.maxStreak=safeInt(game.max_streak);
-  data.best=Math.max(data.best,data.score);
+  
   if(game.result==='triple')setText('classicResult','🔥 Тройка! +'+game.points+' очков · серия x'+game.streak);
   else if(game.result==='pair')setText('classicResult','✨ Пара! +'+game.points+' очков');
   else setText('classicResult','Мимо · +'+game.points+' очка');
+  updateUI();
+  await checkAchievements();
   updateUI();
   haptic('light');
  }catch(e){
@@ -229,68 +291,57 @@ async function spinClassic(){
 }
 function timeAction(){if(timeBusy)return;startTimeGame()}
 function startTimeGame(){timeBusy=true;timeScore=0;timeEnd=Date.now()+30000;setText('timeResult','');const btn=document.getElementById('timeBtn');btn.textContent='КРУТИТЬ';btn.disabled=false;clearInterval(timeTimer);timeTimer=setInterval(()=>{const left=Math.max(0,timeEnd-Date.now());setText('timeLeft',Math.ceil(left/1000));if(left<=0)endTimeGame()},100);toast('⏱️ Поехали!')}
-async function spinTime(){if(!timeBusy||Date.now()>=timeEnd)return endTimeGame();const btn=document.getElementById('timeBtn');btn.disabled=true;try{const r=await serverApi('time_spin');const game=r.game||r;await animateReels(['t1','t2','t3'],260);if(!timeBusy){btn.disabled=false;return}const symbols=game.symbols||[];if(symbols.length===3)symbols.forEach((symbol,i)=>setText(['t1','t2','t3'][i],symbol));const pts=safeInt(game.points);timeScore+=pts;data.score=safeInt(game.balance);data.xp=safeInt(game.total_xp);data.games=safeInt(game.games);data.streak=safeInt(game.streak);data.maxStreak=safeInt(game.max_streak);data.best=Math.max(data.best,data.score);setText('timeScore',timeScore);setText('timeResult',pts>=25?'🔥 Тройка +'+pts:pts>1?'✨ Пара +'+pts:'+'+pts);updateUI();if(Date.now()>=timeEnd)endTimeGame()}catch(e){console.error('Time server error:',e);if(e.message==='TIME_TOO_FAST')setText('timeResult','⏳ Слишком быстро — ещё момент');else setText('timeResult','⚠️ Ошибка сервера. Попробуй ещё раз')}finally{btn.disabled=false;if(Date.now()>=timeEnd&&timeBusy)endTimeGame()}}
+async function spinTime(){if(!timeBusy||Date.now()>=timeEnd)return endTimeGame();const btn=document.getElementById('timeBtn');btn.disabled=true;try{const r=await serverApi('time_spin');const game=r.game||r;await animateReels(['t1','t2','t3'],260);if(!timeBusy){btn.disabled=false;return}const symbols=game.symbols||[];if(symbols.length===3)symbols.forEach((symbol,i)=>setText(['t1','t2','t3'][i],symbol));const pts=safeInt(game.points);timeScore+=pts;data.score=safeInt(game.balance);data.xp=safeInt(game.total_xp);data.games=safeInt(game.games);data.streak=safeInt(game.streak);data.maxStreak=safeInt(game.max_streak);setText('timeScore',timeScore);setText('timeResult',pts>=25?'🔥 Тройка +'+pts:pts>1?'✨ Пара +'+pts:'+'+pts);updateUI();if(Date.now()>=timeEnd)endTimeGame()}catch(e){console.error('Time server error:',e);if(e.message==='TIME_TOO_FAST')setText('timeResult','⏳ Слишком быстро — ещё момент');else setText('timeResult','⚠️ Ошибка сервера. Попробуй ещё раз')}finally{btn.disabled=false;if(Date.now()>=timeEnd&&timeBusy)endTimeGame()}}
 document.getElementById('timeBtn').addEventListener('click',()=>{if(timeBusy)spinTime()});
-async function endTimeGame(){if(!timeBusy)return;timeBusy=false;clearInterval(timeTimer);timeTimer=null;setText('timeLeft','0');document.getElementById('timeBtn').disabled=true;setText('timeResult','⏳ Завершаем раунд на сервере...');try{const r=await serverApi('time_complete');const game=r.game||r;data.score=safeInt(game.balance);data.xp=safeInt(game.total_xp);data.games=safeInt(game.games);data.streak=safeInt(game.streak);data.maxStreak=safeInt(game.max_streak);data.best=Math.max(data.best,data.score);setText('timeResult','🏁 Раунд завершён · +'+timeScore+' очков · игра засчитана');checkAchievements();updateUI();haptic('medium')}catch(e){console.error('Time completion error:',e);setText('timeResult',e.message==='TIME_NOT_FINISHED'?'⏳ Сервер ещё не считает раунд завершённым.':'⚠️ Не удалось завершить раунд на сервере.');}finally{document.getElementById('timeBtn').disabled=false;document.getElementById('timeBtn').textContent='НАЧАТЬ';updateUI()}}
+async function endTimeGame(){if(!timeBusy)return;timeBusy=false;clearInterval(timeTimer);timeTimer=null;setText('timeLeft','0');document.getElementById('timeBtn').disabled=true;setText('timeResult','⏳ Завершаем раунд на сервере...');try{const r=await serverApi('time_complete');const game=r.game||r;data.score=safeInt(game.balance);data.xp=safeInt(game.total_xp);data.games=safeInt(game.games);data.streak=safeInt(game.streak);data.maxStreak=safeInt(game.max_streak);setText('timeResult','🏁 Раунд завершён · +'+timeScore+' очков · игра засчитана');checkAchievements();updateUI();haptic('medium')}catch(e){console.error('Time completion error:',e);setText('timeResult',e.message==='TIME_NOT_FINISHED'?'⏳ Сервер ещё не считает раунд завершённым.':'⚠️ Не удалось завершить раунд на сервере.');}finally{document.getElementById('timeBtn').disabled=false;document.getElementById('timeBtn').textContent='НАЧАТЬ';updateUI()}}
 function newTarget(){setText('targetSymbol',randomSymbol());targetHits=0;setText('targetHits',0)}
-async function spinTarget(){if(targetBusy)return;targetBusy=true;const btn=document.getElementById('targetBtn');btn.disabled=true;try{const target=document.getElementById('targetSymbol').textContent;const r=await serverApi('target_spin',{target});const game=r.game||r;await animateReels(['g1','g2','g3']);const symbols=game.symbols||[];if(symbols.length===3)symbols.forEach((symbol,i)=>setText(['g1','g2','g3'][i],symbol));const hits=safeInt(game.hits),pts=safeInt(game.points);targetHits+=hits;data.score=safeInt(game.balance);data.xp=safeInt(game.total_xp);data.games=safeInt(game.games);data.streak=safeInt(game.streak);data.maxStreak=safeInt(game.max_streak);data.best=Math.max(data.best,data.score);setText('targetHits',targetHits);setText('targetResult',hits?('🎯 Попаданий: '+hits+' · +'+pts+' очков'):'Мимо · сервер: +0');if(targetHits>=3){const completed=await serverApi('target_complete');const cg=completed.game||completed;data.score=safeInt(cg.balance);data.xp=safeInt(cg.total_xp);data.games=safeInt(cg.games);data.streak=safeInt(cg.streak);data.maxStreak=safeInt(cg.max_streak);targetHits=0;setTimeout(newTarget,500);toast('🎯 Цель выполнена! Раунд засчитан')}checkAchievements();updateUI()}catch(e){console.error('Target server error:',e);setText('targetResult','⚠️ Ошибка сервера. Попробуй ещё раз')}finally{targetBusy=false;btn.disabled=false}}
+async function spinTarget(){if(targetBusy)return;targetBusy=true;const btn=document.getElementById('targetBtn');btn.disabled=true;try{const target=document.getElementById('targetSymbol').textContent;const r=await serverApi('target_spin',{target});const game=r.game||r;await animateReels(['g1','g2','g3']);const symbols=game.symbols||[];if(symbols.length===3)symbols.forEach((symbol,i)=>setText(['g1','g2','g3'][i],symbol));const hits=safeInt(game.hits),pts=safeInt(game.points);targetHits+=hits;data.score=safeInt(game.balance);data.xp=safeInt(game.total_xp);data.games=safeInt(game.games);data.streak=safeInt(game.streak);data.maxStreak=safeInt(game.max_streak);setText('targetHits',targetHits);setText('targetResult',hits?('🎯 Попаданий: '+hits+' · +'+pts+' очков'):'Мимо · сервер: +0');if(targetHits>=3){const completed=await serverApi('target_complete');const cg=completed.game||completed;data.score=safeInt(cg.balance);data.xp=safeInt(cg.total_xp);data.games=safeInt(cg.games);data.streak=safeInt(cg.streak);data.maxStreak=safeInt(cg.max_streak);targetHits=0;setTimeout(newTarget,500);toast('🎯 Цель выполнена! Раунд засчитан')}checkAchievements();updateUI()}catch(e){console.error('Target server error:',e);setText('targetResult','⚠️ Ошибка сервера. Попробуй ещё раз')}finally{targetBusy=false;btn.disabled=false}}
 function selectWheelColor(color){if(wheelBusy)return;wheelColor=color;document.getElementById('betRed')?.classList.toggle('active',color==='red');document.getElementById('betBlack')?.classList.toggle('active',color==='black');setText('wheelStatus','Ставка: '+wheelBet+' · '+(color==='red'?'🔴 Красное':'⚫ Чёрное'));updateUI();haptic('light')}
 function selectWheelBet(amount,el){if(wheelBusy)return;wheelBet=Math.max(1,safeInt(amount));document.querySelectorAll('.betAmount').forEach(x=>x.classList.remove('active'));el?.classList.add('active');if(wheelColor)setText('wheelStatus','Ставка: '+wheelBet+' · '+(wheelColor==='red'?'🔴 Красное':'⚫ Чёрное'));updateUI();haptic('light')}
-async function spinWheel(){if(wheelBusy)return;const unlocked=data.games>=WHEEL_UNLOCK_GAMES&&data.score>=WHEEL_MIN_BALANCE;if(!unlocked)return toast('🎟️ Сначала сыграй ещё несколько раундов');if(!wheelColor)return toast('Выбери красное или чёрное');if(wheelBet>data.score)return toast('Недостаточно очков для ставки');wheelBusy=true;const btn=document.getElementById('wheelSpinBtn');btn.disabled=true;const disc=document.getElementById('wheelDisc');setText('wheelStatus','🎡 Колесо вращается...');haptic('medium');try{const r=await serverApi('wheel_spin',{color:wheelColor,bet:wheelBet});const game=r.game||r;const number=safeInt(game.number);const angle=(number/37)*360+1440;disc.style.transform='rotate('+angle+'deg)';await new Promise(res=>setTimeout(res,3200));data.score=safeInt(game.balance);data.xp=safeInt(game.total_xp);data.games=safeInt(game.games);data.streak=safeInt(game.streak);data.maxStreak=safeInt(game.max_streak);data.best=Math.max(data.best,data.score);const win=game.result==='win';setText('wheelStatus',win?'🎉 Выигрыш! +'+game.profit+' очков · выпало '+number:'💥 Проигрыш · −'+wheelBet+' очков · выпало '+number);disc.classList.toggle('wheelWin',win);setTimeout(()=>disc.classList.remove('wheelWin'),700);updateUI();haptic(win?'heavy':'light')}catch(e){console.error('Wheel server error:',e);setText('wheelStatus',e.message==='WHEEL_LOCKED'?'🎟️ Колесо пока закрыто.':e.message==='INSUFFICIENT_POINTS'?'💰 Недостаточно очков.':('⚠️ '+(e.message||'Не удалось прокрутить колесо.')))}finally{wheelBusy=false;updateUI()}}
+async function spinWheel(){if(wheelBusy)return;const unlocked=data.games>=WHEEL_UNLOCK_GAMES&&data.score>=WHEEL_MIN_BALANCE;if(!unlocked)return toast('🎟️ Сначала сыграй ещё несколько раундов');if(!wheelColor)return toast('Выбери красное или чёрное');if(wheelBet>data.score)return toast('Недостаточно очков для ставки');wheelBusy=true;const btn=document.getElementById('wheelSpinBtn');btn.disabled=true;const disc=document.getElementById('wheelDisc');setText('wheelStatus','🎡 Колесо вращается...');haptic('medium');try{const r=await serverApi('wheel_spin',{color:wheelColor,bet:wheelBet});const game=r.game||r;const number=safeInt(game.number);const actualColor=game.color||'black';const angle=(number/37)*360+1440;disc.style.transform='rotate('+angle+'deg)';await new Promise(res=>setTimeout(res,3200));data.score=safeInt(game.balance);data.xp=safeInt(game.total_xp);data.games=safeInt(game.games);data.streak=safeInt(game.streak);data.maxStreak=safeInt(game.max_streak);const win=game.result==='win';setText('wheelStatus',win?'🎉 Выигрыш! +'+game.profit+' очков · выпало '+number+' · '+(actualColor==='red'?'🔴 красное':actualColor==='green'?'🟢 зелёное':'⚫ чёрное'):'💥 Проигрыш · −'+wheelBet+' очков · выпало '+number+' · '+(actualColor==='red'?'🔴 красное':actualColor==='green'?'🟢 зелёное':'⚫ чёрное'));disc.classList.toggle('wheelWin',win);setTimeout(()=>disc.classList.remove('wheelWin'),700);updateUI();haptic(win?'heavy':'light')}catch(e){console.error('Wheel server error:',e);setText('wheelStatus',e.message==='WHEEL_LOCKED'?'🎟️ Колесо пока закрыто.':e.message==='INSUFFICIENT_POINTS'?'💰 Недостаточно очков.':('⚠️ '+(e.message||'Не удалось прокрутить колесо.')))}finally{wheelBusy=false;updateUI()}}
 async function initTelegram(){
  if(!tg)return false;
  try{
   tg.ready();tg.expand();tg.setHeaderColor('#07110c');tg.setBackgroundColor('#030705');
   tgUser=tg.initDataUnsafe?.user||null;
   tg.BackButton.onClick(()=>openScreen('home'));
-  if(!tg.initData){throw new Error('Telegram initData is empty');}
-  const response=await fetch(LUCKYSHACK_BUILD.authUrl,{
-   method:'POST',
-   headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({initData:tg.initData})
-  });
-  const result=await response.json();
-  if(!response.ok||!result.ok){throw new Error(result.error||'Telegram authorization failed');}
-  serverProfile=result.user;
-  tgUser={...tgUser,...{id:result.user.telegram_id,username:(result.user.username||'').replace(/^@/,''),first_name:result.user.display_name||tgUser?.first_name}};
-  isOwner=result.user.role==='OWNER';
+  if(!tg.initData)throw new Error('Telegram initData is empty');
+  const result=await serverApi('get_me');
+  serverProfile=result.user||result.profile;
+  const u=serverProfile||{};
+  tgUser={...tgUser,id:u.telegram_id,username:(u.username||'').replace(/^@/,''),first_name:u.display_name||tgUser?.first_name||'Игрок'};
+  isOwner=u.role==='OWNER';
   return true;
  }catch(e){
-  console.error('Telegram auth error:',e);
-  isOwner=false;
-  toast('⚠️ Не удалось подтвердить Telegram');
-  return false;
+  console.error('Telegram auth error:',e);isOwner=false;toast('⚠️ Не удалось подтвердить Telegram');return false;
  }
 }
-async function loadServerBalance(){
- if(!tg?.initData){throw new Error('Telegram initData is empty')}
 
- try{
-  const response=await fetch(LUCKYSHACK_BUILD.gameUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData,action:'get_balance'})});
-  const result=await response.json();
-  if(!response.ok||!result.ok)throw new Error(result.error||'Balance load failed');
-  const b=result.balance||{};
-  data.score=safeInt(b.points);
-  data.xp=safeInt(b.xp);
-  data.games=safeInt(b.games);
-  data.streak=safeInt(b.streak);
-  data.maxStreak=safeInt(b.max_streak);
-  data.best=Math.max(data.best,data.score);
-  // Server is authoritative for game statistics. Never restore these fields from old local builds.
-  saveLocal();
-  return true;
- }catch(e){
-  console.error('Server balance error:',e);
-  throw e;
- }
+async function loadServerBalance(){
+ const r=await serverApi('get_balance');
+ const b=r.balance||{};
+ data.score=safeInt(b.points);
+ data.xp=safeInt(b.xp);
+ data.games=safeInt(b.games);
+ data.streak=safeInt(b.streak);
+ data.maxStreak=safeInt(b.max_streak);
+ data.best=safeInt(b.best);
+ data.level=Math.max(1,safeInt(b.level,Math.floor(data.xp/100)+1));
+ data.achievements=Array.isArray(b.achievements)?b.achievements:[];
+ data.dailyClaimed=Boolean(b.daily_claimed);
+ data.dailyDate=new Date().toISOString().slice(0,10);
+ saveLocal();
+ return true;
 }
+
 async function loading(){const steps=[['Подключение...',18],['Профиль...',35],['Серверный баланс...',65],['Режимы...',80],['Интерфейс...',92],['Готово',100]];for(const [s,p] of steps){setText('loadstep',s);document.getElementById('loadbar').style.width=p+'%';await new Promise(r=>setTimeout(r,120))}document.getElementById('loading').style.opacity='0';setTimeout(()=>{document.getElementById('loading').remove();document.getElementById('app').style.display='block'},450)}
 (async function(){
  try{
   await initTelegram();
   await loadData();
   await loadServerBalance();
-   await loadSocial();
+  await checkAchievements();
+  await loadSocial();
   checkDaily();
   newTarget();
   updateUI();
