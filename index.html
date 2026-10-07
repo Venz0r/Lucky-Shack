@@ -8,7 +8,73 @@
 <!-- LUCKYSHACK_OFFICIAL_BUILD: LS41-MW-OWNER -->
 <!-- Source marker: LuckyShack 4.8 | Owner: @matwaysr | Arcade build -->
 <title>LuckyShack 4.8</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js">
+/* LUCKY ROYALE FRONTEND */
+const ROYALE_BETS=[10,25,50,100,250];
+let royaleBet=10,royaleRoomCode='',royaleState=null,royalePoll=null,royaleBusy=false,royaleReadyState=false,royaleLastSpinRound=0,royaleLastSpinPoints=0,royaleLastSpinSymbols=[];
+function royaleApi(action,extra={}){
+  if(!tg?.initData) return Promise.reject(new Error('Telegram initData is empty'));
+  return fetch(LUCKYSHACK_BUILD.royaleUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData,action,...extra})}).then(async r=>{const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||('ROYALE_SERVER_'+r.status));return j;});
+}
+function selectRoyaleBet(amount,el){if(royaleBusy)return;royaleBet=ROYALE_BETS.includes(Number(amount))?Number(amount):10;document.querySelectorAll('.royaleBet').forEach(x=>x.classList.toggle('active',Number(x.dataset.royaleBet)===royaleBet));haptic('light');}
+function royaleUiMode(inRoom){document.getElementById('royaleLobby')?.classList.toggle('royaleHidden',inRoom);document.getElementById('royaleRoom')?.classList.toggle('royaleHidden',!inRoom);}
+function royaleStatusText(status){return ({waiting:'Ожидание игроков',playing:'Матч идёт',finished:'Матч завершён',cancelled:'Комната закрыта',starting:'Запуск матча'})[status]||status||'—';}
+function royaleAvatar(p){return String(p?.avatar||p?.display_name||p?.username||'L').replace(/^@/,'').trim().charAt(0).toUpperCase()||'L';}
+function royaleEscape(s){return escapeHTML(s??'');}
+function royalePrizeFor(place,pot,count){pot=safeInt(pot);if(place===1)return Math.floor(pot*.7);if(place===2&&count>=3)return Math.floor(pot*.2);if(place===2&&count===2)return pot-Math.floor(pot*.7);if(place===3&&count>=3)return pot-Math.floor(pot*.7)-Math.floor(pot*.2);return 0;}
+function royaleRenderPlayers(){
+  const el=document.getElementById('royalePlayers');if(!el)return;const ps=Array.isArray(royaleState?.players)?royaleState.players:[];
+  if(!ps.length){el.innerHTML='<div class="royaleEmpty">Подключаем игроков…</div>';return;}
+  el.innerHTML=ps.map(p=>{const ready=!!p.ready;const host=p.is_host?' 👑':'';return '<div class="royalePlayer '+(p.is_me?'me ':'')+(ready?'ready':'')+'"><div class="royaleReadyDot '+(ready?'on':'')+'"></div><div class="royaleAvatar">'+royaleEscape(royaleAvatar(p))+'</div><div class="royalePlayerMain"><div class="royalePlayerName">'+royaleEscape(p.display_name||p.username||'Игрок')+(p.is_me?' <span style="color:#35ff8a;font-size:9px">ТЫ</span>':'')+'<span class="royaleHost">'+host+'</span></div><div class="royalePlayerMeta">'+(ready?'ГОТОВ':'ОЖИДАЕТ')+'</div></div><div class="royalePlayerScore">'+safeInt(p.total_score)+'<span style="display:block;color:#6f997e;font-size:8px">ОЧКОВ</span>'+(p.place?'<span class="royalePlayerPlace">#'+p.place+'</span>':'')+'</div></div>'}).join('');
+}
+function royaleRenderTable(){
+  const el=document.getElementById('royaleScoreTable');if(!el)return;const ps=[...(royaleState?.players||[])].sort((a,b)=>{if(a.place&&b.place)return a.place-b.place;if(a.place)return -1;if(b.place)return 1;return safeInt(b.total_score)-safeInt(a.total_score)});
+  if(!ps.length){el.innerHTML='<div class="royaleEmpty">Таблица появится после входа игроков.</div>';return;}
+  el.innerHTML='<div class="royaleTableRow head"><div>#</div><div>ИГРОК</div><div style="text-align:right">ОЧКИ</div><div style="text-align:right">СТАТУС</div></div>'+ps.map((p,i)=>'<div class="royaleTableRow"><div class="place">'+(p.place||i+1)+'</div><div class="rname">'+royaleEscape(p.display_name||'Игрок')+(p.is_me?' · ТЫ':'')+'</div><div class="rscore">'+safeInt(p.total_score)+'</div><div class="rstate">'+(p.place?'✓':'…')+'</div></div>').join('');
+}
+function royaleRenderFinal(){
+  const box=document.getElementById('royaleFinal');if(!box)return;const r=royaleState?.room;if(!r||r.status!=='finished'){box.classList.add('royaleHidden');box.innerHTML='';return;}const me=(royaleState.players||[]).find(p=>p.is_me);const count=(royaleState.players||[]).length;const place=safeInt(me?.place);const prize=royalePrizeFor(place,safeInt(r.pot),count);const title=place===1?'ПОБЕДА!':place?'МАТЧ ЗАВЕРШЁН':'МАТЧ ЗАВЕРШЁН';box.classList.remove('royaleHidden');box.innerHTML='<div class="royaleFinal"><div class="royaleFinalCrown">'+(place===1?'👑':'🏆')+'</div><div class="royaleFinalTitle">'+title+'</div><div class="royaleFinalMeta">Твоё место</div><div class="royalePrize">#'+(place||'—')+'</div><div class="royaleFinalMeta">'+(prize?'Награда: <b style="color:#d7ff63">+'+prize+'</b> очков':'Без призовой выплаты')+' · Банк '+safeInt(r.pot)+'</div><button class="primary" style="margin-top:12px" onclick="royaleExitFinished()">ВЕРНУТЬСЯ В LOBBY</button></div>';
+}
+function royaleRender(){
+  const r=royaleState?.room;if(!r){royaleUiMode(false);return;}
+  royaleUiMode(true);setText('royaleRoomCode',r.code);setText('royaleRoomStatus',royaleStatusText(r.status));setText('royaleRoundNow',safeInt(r.current_round));setText('royalePot',safeInt(r.pot));
+  royaleRenderPlayers();royaleRenderTable();royaleRenderFinal();
+  const ps=royaleState.players||[],me=ps.find(p=>p.is_me),host=!!me?.is_host,playing=r.status==='playing',waiting=r.status==='waiting',finished=r.status==='finished',already=royaleLastSpinRound===safeInt(r.current_round);
+  const lobbyActions=document.getElementById('royaleLobbyActions');if(lobbyActions)lobbyActions.classList.toggle('royaleHidden',!waiting);
+  const readyBtn=document.getElementById('royaleReadyBtn');if(readyBtn){readyBtn.textContent=me?.ready?'✕ НЕ ГОТОВ':'✓ ГОТОВ';readyBtn.disabled=royaleBusy||!waiting;}
+  const startBtn=document.getElementById('royaleStartBtn');if(startBtn){startBtn.disabled=royaleBusy||!waiting||!host||ps.length<2||!ps.every(p=>p.ready);startBtn.textContent=host?'▶ СТАРТ':'🔒 СТАРТ ТОЛЬКО ХОСТ';}
+  const play=document.getElementById('royalePlayArea');if(play)play.classList.toggle('royaleHidden',!playing);
+  const spinBtn=document.getElementById('royaleSpinBtn');if(spinBtn){spinBtn.disabled=royaleBusy||already;spinBtn.textContent=already?'✓ СПИН СДЕЛАН':'🎰 КРУТИТЬ';}
+  const wait=document.getElementById('royaleSpinWait');if(wait){const done=(royaleState.current_results||[]).length;wait.textContent=alreadyText(done,ps.length,already);}
+  const leave=document.getElementById('royaleLeaveBtn');if(leave)leave.textContent=finished?'← ЗАКРЫТЬ РЕЗУЛЬТАТ':'← ВЫЙТИ ИЗ КОМНАТЫ';
+  if(finished&&royaleLastSpinRound>0) setText('royaleSpinInfo','🏁 Финальный раунд завершён');
+  if(r.status==='cancelled')setText('royaleSpinInfo','Комната закрыта');
+  setText('royaleLobbyBalance',data.score);
+}
+function alreadyText(done,total,already){if(already)return 'Твой спин сохранён. Ждём остальных игроков…';if(done>=total&&total)return 'Все игроки сделали ход — сервер переводит матч дальше.';return 'Ходов в текущем раунде: '+done+' / '+total;}
+async function royaleRefresh(){
+  if(!royaleRoomCode)return;try{const r=await royaleApi('royale_state',{room_code:royaleRoomCode});royaleState=r;royaleRender();}catch(e){if(['ROOM_NOT_FOUND','NOT_IN_ROOM'].includes(e.message)){royaleStopPolling();royaleRoomCode='';royaleState=null;royaleUiMode(false);if(currentScreen==='royale')toast('Комната больше недоступна');}else console.warn('Royale state:',e.message)}
+}
+function royaleStartPolling(){clearInterval(royalePoll);royalePoll=setInterval(()=>{if(currentScreen==='royale'&&royaleRoomCode&&!royaleBusy)royaleRefresh()},1500)}
+function royaleStopPolling(){clearInterval(royalePoll);royalePoll=null}
+async function royaleCreate(){if(royaleBusy)return;royaleBusy=true;const btn=document.getElementById('royaleCreateBtn');if(btn)btn.disabled=true;try{const r=await royaleApi('royale_create',{bet:royaleBet});royaleState=r;royaleRoomCode=r.room?.code||'';royaleLastSpinRound=0;royaleLastSpinPoints=0;royaleLastSpinSymbols=[];data.score=Math.max(0,data.score-royaleBet);updateUI();royaleRender();royaleStartPolling();toast('👑 Комната создана · код '+royaleRoomCode);haptic('medium');}catch(e){royaleShowError(e);toast('⚠️ '+royaleHumanError(e.message));}finally{royaleBusy=false;if(btn)btn.disabled=false;}}
+async function royaleJoin(){if(royaleBusy)return;const code=(document.getElementById('royaleJoinCode')?.value||'').trim().toUpperCase();if(code.length!==6)return toast('Введи 6-символьный код комнаты');royaleBusy=true;try{const r=await royaleApi('royale_join',{room_code:code});royaleState=r;royaleRoomCode=r.room?.code||code;royaleLastSpinRound=0;data.score=Math.max(0,data.score-safeInt(r.room?.bet));updateUI();royaleRender();royaleStartPolling();toast('🎮 Ты в комнате '+royaleRoomCode);haptic('medium');}catch(e){royaleShowError(e);toast('⚠️ '+royaleHumanError(e.message));}finally{royaleBusy=false;}}
+async function royaleToggleReady(){if(royaleBusy||!royaleRoomCode)return;const me=(royaleState?.players||[]).find(p=>p.is_me);royaleBusy=true;try{const r=await royaleApi('royale_ready',{room_code:royaleRoomCode,ready:!me?.ready});royaleState=r;royaleRender();haptic('light');}catch(e){royaleShowError(e);toast('⚠️ '+royaleHumanError(e.message));}finally{royaleBusy=false;royaleRender();}}
+async function royaleStart(){if(royaleBusy||!royaleRoomCode)return;royaleBusy=true;try{const r=await royaleApi('royale_start',{room_code:royaleRoomCode});royaleState=r;royaleLastSpinRound=0;royaleRender();toast('🔥 Матч начался!');haptic('heavy');}catch(e){royaleShowError(e);toast('⚠️ '+royaleHumanError(e.message));}finally{royaleBusy=false;royaleRender();}}
+async function royaleSpin(){if(royaleBusy||!royaleRoomCode||royaleState?.room?.status!=='playing')return;const round=safeInt(royaleState.room.current_round);if(royaleLastSpinRound===round)return;royaleBusy=true;const btn=document.getElementById('royaleSpinBtn');if(btn)btn.disabled=true;setText('royaleSpinInfo','🎰 Сервер генерирует твой спин…');try{const r=await royaleApi('royale_spin',{room_code:royaleRoomCode});const sp=r.spin||{};royaleLastSpinRound=round;royaleLastSpinPoints=safeInt(sp.points);royaleLastSpinSymbols=Array.isArray(sp.symbols)?sp.symbols:[];royaleState=r;await royaleAnimateSpin(royaleLastSpinSymbols);setText('royaleSpinInfo',(royaleLastSpinPoints>=25?'🔥':'✨')+' +'+royaleLastSpinPoints+' очков · серверный результат');haptic('medium');royaleRender();}catch(e){if(e.message==='ALREADY_SPUN')royaleLastSpinRound=round;royaleShowError(e);toast('⚠️ '+royaleHumanError(e.message));}finally{royaleBusy=false;royaleRender();}}
+async function royaleAnimateSpin(symbols){const ids=['rr1','rr2','rr3'];const fallback=['🍒','🍋','🍊'];for(let k=0;k<8;k++){ids.forEach((id,i)=>setText(id,fallback[(i+k)%fallback.length]));await new Promise(r=>setTimeout(r,45));}ids.forEach((id,i)=>setText(id,symbols[i]||fallback[i]));ids.forEach(id=>document.getElementById(id)?.classList.add('flash'));setTimeout(()=>ids.forEach(id=>document.getElementById(id)?.classList.remove('flash')),520);}
+async function royaleLeave(){if(!royaleRoomCode)return;const finished=royaleState?.room?.status==='finished';if(finished)return royaleExitFinished();if(royaleBusy)return;royaleBusy=true;try{const r=await royaleApi('royale_leave',{room_code:royaleRoomCode});if(r.refunded){data.score+=safeInt(r.refunded);updateUI();toast('↩️ Возвращено '+r.refunded+' очков');}royaleStopPolling();royaleRoomCode='';royaleState=null;royaleLastSpinRound=0;royaleUiMode(false);openScreen('royale');}catch(e){royaleShowError(e);toast('⚠️ '+royaleHumanError(e.message));}finally{royaleBusy=false;}}
+function royaleExitFinished(){royaleStopPolling();royaleRoomCode='';royaleState=null;royaleLastSpinRound=0;royaleUiMode(false);document.getElementById('royaleFinal')?.classList.add('royaleHidden');document.getElementById('royaleError')?.classList.add('royaleHidden');updateUI();}
+function copyRoyaleCode(){const code=royaleState?.room?.code||royaleRoomCode;if(!code)return;const done=()=>toast('📋 Код '+code+' скопирован');if(navigator.clipboard?.writeText)navigator.clipboard.writeText(code).then(done).catch(()=>royaleCopyFallback(code));else royaleCopyFallback(code);}
+function royaleCopyFallback(code){const t=document.createElement('textarea');t.value=code;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();try{document.execCommand('copy');toast('📋 Код '+code+' скопирован')}catch(e){toast('Код комнаты: '+code)}t.remove();}
+function royaleHumanError(e){return ({INVALID_ROYALE_BET:'Недопустимая ставка.',INSUFFICIENT_POINTS:'Недостаточно очков.',ROOM_NOT_FOUND:'Комната не найдена.',ROOM_NOT_JOINABLE:'В эту комнату уже нельзя войти.',ROOM_FULL:'Комната заполнена.',NEED_TWO_PLAYERS:'Нужно минимум 2 игрока.',PLAYERS_NOT_READY:'Не все игроки готовы.',ONLY_HOST_CAN_START:'Только хост может начать матч.',ROOM_ALREADY_STARTED:'Матч уже запущен.',ALREADY_SPUN:'Ты уже сделал спин в этом раунде.',ROOM_NOT_PLAYING:'Матч сейчас не идёт.',ROOM_NOT_WAITING:'Комната уже запущена.',NOT_IN_ROOM:'Ты больше не в этой комнате.',ROOM_CODE_FAILED:'Не удалось создать код комнаты.'}[e])||e||'Ошибка Royale.';}
+function royaleShowError(e){const el=document.getElementById('royaleError');if(!el)return;el.classList.remove('royaleHidden');el.innerHTML='<div class="royaleError">⚠️ '+royaleEscape(royaleHumanError(e.message))+'</div>';clearTimeout(royaleShowError._t);royaleShowError._t=setTimeout(()=>el.classList.add('royaleHidden'),4500);}
+function royalePatchOpenScreen(){
+  const original=openScreen;
+  openScreen=function(id){if(currentScreen==='royale'&&id!=='royale')royaleStopPolling();original(id);if(id==='royale'){setText('royaleLobbyBalance',data.score);if(royaleRoomCode){royaleUiMode(true);royaleRefresh();royaleStartPolling()}else royaleUiMode(false);}}
+}
+
+</script>
 <style>
 :root{--bg:#030705;--panel:#07110c;--panel2:#0a1710;--line:#123c26;--text:#effff5;--muted:#83a895;--pink:#35ff8a;--violet:#00d66f;--cyan:#5cffb0;--green:#35ff8a;--gold:#d7ff63;--danger:#ff5d7a;--shadow:0 14px 40px rgba(0,255,110,.08)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100%;overflow-x:hidden}button{font:inherit;color:inherit;border:0;cursor:pointer}body{padding-bottom:env(safe-area-inset-bottom)}
@@ -64,6 +130,22 @@ body{background:radial-gradient(circle at 50% -15%,#0b321d 0,#041009 38%,#030705
 .previewClassic{background:radial-gradient(circle at 50% 40%,#1d6b3c,#06130b 68%)}.previewTime{background:radial-gradient(circle at 50% 40%,#174c72,#06100f 68%)}.previewTarget{background:radial-gradient(circle at 50% 40%,#6a4b13,#101006 68%)}.previewWheel{background:radial-gradient(circle at 50% 40%,#6b1d2a,#0b0809 68%)}.previewRush{background:radial-gradient(circle at 50% 40%,#3b1c72,#080611 68%)}.previewDouble{background:radial-gradient(circle at 50% 40%,#12645d,#03100e 68%)}.previewMemory{background:radial-gradient(circle at 50% 40%,#6b3150,#10060c 68%)}
 .arcadeGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.arcadeSection{margin-top:20px}.mode .modePreview{margin:-2px -2px 10px}.mode{min-height:0;padding:10px}.mode b{font-size:14px}.mode span{min-height:28px}
 .mode .previewIcon{animation:previewFloat 2.5s ease-in-out infinite}@keyframes previewFloat{50%{transform:translateY(-4px) scale(1.04)}}
+
+/* LUCKY ROYALE — BLACK / GREEN NEON */
+.royaleHero{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 0%,#123b24 0,#08180e 44%,#030705 100%);border:1px solid #1e7543;border-radius:26px;padding:18px;box-shadow:0 24px 70px #000a,0 0 42px #35ff8a12}
+.royaleHero:before{content:"";position:absolute;inset:-70px -80px auto;height:170px;background:radial-gradient(circle,#35ff8a22,transparent 65%);pointer-events:none}
+.royaleKicker{font-size:9px;font-weight:950;letter-spacing:2px;color:#35ff8a}.royaleTitle{font-size:30px;font-weight:950;letter-spacing:-1px;margin:4px 0 6px}.royaleSub{font-size:12px;line-height:1.45;color:#91b6a0;max-width:480px}
+.royaleGlow{position:absolute;right:12px;top:10px;font-size:42px;filter:drop-shadow(0 0 18px #35ff8a88);animation:royaleFloat 2.4s ease-in-out infinite}@keyframes royaleFloat{50%{transform:translateY(-7px) rotate(3deg)}}
+.royalePills{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}.royalePill{padding:7px 9px;border-radius:999px;background:#06130b;border:1px solid #185532;color:#9bc8aa;font-size:10px;font-weight:850}.royalePill b{color:#d7ff63}
+.royaleSection{margin-top:13px}.royaleCard{background:linear-gradient(145deg,#0b2113,#061009);border:1px solid #15542f;border-radius:22px;padding:15px;box-shadow:0 18px 55px #0008}.royaleBetGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:9px}.royaleBet{padding:11px 4px;border-radius:13px;background:#07170d;border:1px solid #16482b;font-weight:950;font-size:12px;transition:.16s}.royaleBet:active{transform:scale(.97)}.royaleBet.active{color:#031008;background:linear-gradient(135deg,#00a957,#35ff8a);border-color:#35ff8a;box-shadow:0 0 0 1px #35ff8a55,0 0 25px #35ff8a18}
+.royaleActionRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.royaleCodeRow{display:flex;gap:8px;align-items:stretch}.royaleInput{width:100%;padding:13px 12px;border-radius:13px;background:#030806;border:1px solid #185532;color:#effff5;outline:none;text-transform:uppercase;font-weight:900;letter-spacing:2px;text-align:center}.royaleInput:focus{border-color:#35ff8a;box-shadow:0 0 0 2px #35ff8a18}.royaleMini{padding:12px 13px;border-radius:13px;background:#0a1b10;border:1px solid #185532;font-weight:900;white-space:nowrap}.royaleMini:active{transform:scale(.98)}
+.royaleRoomTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.royaleCode{font-size:26px;letter-spacing:4px;font-weight:950;color:#d7ff63;text-shadow:0 0 20px #d7ff6333}.royaleStatus{font-size:10px;color:#79a78a;margin-top:3px}.royaleCopy{padding:8px 10px;border-radius:11px;background:#07170d;border:1px solid #1a5b34;font-size:11px;font-weight:900}.royaleCopy:active{transform:scale(.96)}
+.royaleRound{margin-top:13px;padding:11px 12px;border-radius:14px;background:#061009;border:1px solid #16482b;display:flex;align-items:center;justify-content:space-between;gap:10px}.royaleRound b{color:#35ff8a}.royaleRound small{color:#7fa68e}.royalePot{color:#d7ff63;font-weight:950}
+.royalePlayers{display:grid;gap:7px;margin-top:10px}.royalePlayer{display:flex;align-items:center;gap:9px;padding:10px;border-radius:14px;background:#07130c;border:1px solid #123c26;position:relative;overflow:hidden}.royalePlayer.me{border-color:#237b49;box-shadow:inset 0 0 0 1px #35ff8a14}.royalePlayer.ready{background:linear-gradient(145deg,#0a2113,#07130c)}.royaleAvatar{width:34px;height:34px;flex:0 0 34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,#0a8e4b,#35ff8a);color:#031008;font-weight:950}.royalePlayerMain{min-width:0;flex:1}.royalePlayerName{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.royalePlayerMeta{font-size:9px;color:#6f997e;margin-top:2px}.royalePlayerScore{text-align:right;font-weight:950;color:#5cffb0}.royalePlayerPlace{display:block;color:#d7ff63;font-size:9px;margin-top:2px}.royaleHost{font-size:9px;color:#d7ff63;margin-left:4px}.royaleReadyDot{width:8px;height:8px;border-radius:50%;background:#294335;box-shadow:0 0 0 3px #1a2b20}.royaleReadyDot.on{background:#35ff8a;box-shadow:0 0 0 3px #35ff8a18,0 0 12px #35ff8a99}
+.royaleSpinBox{margin-top:13px;padding:15px;border-radius:20px;background:radial-gradient(circle at 50% 0%,#12351e,#061009 72%);border:1px solid #1d6d3e;text-align:center}.royaleReels{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}.royaleReel{height:78px;border-radius:15px;background:#020604;border:1px solid #17472a;display:grid;place-items:center;font-size:38px;box-shadow:inset 0 0 24px #000;transition:.18s}.royaleReel.flash{animation:royaleReelFlash .48s ease}@keyframes royaleReelFlash{0%{transform:scale(.96);filter:brightness(.8)}50%{transform:scale(1.05);filter:brightness(1.5);box-shadow:0 0 30px #35ff8a44}100%{transform:scale(1);filter:none}}
+.royaleSpinInfo{min-height:24px;color:#d7ff63;font-weight:900;font-size:12px}.royaleWait{font-size:11px;color:#83a895;line-height:1.45}.royaleTable{margin-top:10px;display:grid;gap:6px}.royaleTableRow{display:grid;grid-template-columns:34px 1fr 62px 52px;align-items:center;gap:6px;padding:9px 8px;border-radius:12px;background:#061009;border:1px solid #123c26;font-size:10px}.royaleTableRow.head{background:#0a1a10;color:#6f997e;font-size:9px;text-transform:uppercase}.royaleTableRow .place{text-align:center;color:#d7ff63;font-weight:950}.royaleTableRow .rname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:850}.royaleTableRow .rscore{text-align:right;color:#5cffb0;font-weight:950}.royaleTableRow .rstate{text-align:right;color:#7fa68e}.royaleFinal{padding:17px;border-radius:22px;background:radial-gradient(circle at 50% 0%,#173e24,#07120b 65%);border:1px solid #2b8a4f;text-align:center;box-shadow:0 0 45px #35ff8a12}.royaleFinalCrown{font-size:46px;filter:drop-shadow(0 0 15px #d7ff6388);animation:royaleCrown 1.7s ease-in-out infinite}@keyframes royaleCrown{50%{transform:translateY(-5px) rotate(-2deg)}}.royaleFinalTitle{font-size:23px;font-weight:950;margin:4px 0;color:#effff5}.royalePrize{font-size:30px;font-weight:950;color:#d7ff63;text-shadow:0 0 22px #d7ff6340}.royaleFinalMeta{font-size:11px;color:#83a895;margin-top:3px}.royaleError{padding:12px;border-radius:14px;background:#1a0a0f;border:1px solid #6b2638;color:#ff8ea2;font-size:11px;line-height:1.4}.royaleEmpty{padding:16px;text-align:center;color:#759581;border:1px dashed #185532;border-radius:15px;background:#061009}.royaleHidden{display:none!important}
+@media(max-width:390px){.royaleBetGrid{grid-template-columns:repeat(3,1fr)}.royaleTitle{font-size:27px}.royaleTableRow{grid-template-columns:30px 1fr 54px 45px}}
+
 </style>
 </head>
 <body>
@@ -77,6 +159,7 @@ body{background:radial-gradient(circle at 50% -15%,#0b321d 0,#041009 38%,#030705
 <button class="mode" onclick="toast('⚡ Rush 15 — новый режим в разработке')"><div class="modePreview previewRush"><div class="previewBadge">NEW</div><div class="previewIcon">⚡</div></div><b>Rush 15</b><span>15 секунд — риск ради серии</span></button>
 <button class="mode" onclick="toast('🪙 Double — новый режим в разработке')"><div class="modePreview previewDouble"><div class="previewBadge">RISK</div><div class="previewIcon">🪙</div></div><b>Double</b><span>Рискни и удвой награду</span></button>
 <button class="mode" onclick="toast('🧠 Memory — новый режим в разработке')"><div class="modePreview previewMemory"><div class="previewBadge">NEW</div><div class="previewIcon">🧠</div></div><b>Memory</b><span>Запомни комбинацию</span></button>
+<button class="mode royaleMode" onclick="openScreen('royale')"><div class="modePreview previewClassic"><div class="previewBadge">MULTIPLAYER</div><div class="previewIcon">👑</div></div><b>Lucky Royale</b><span>2–8 игроков · 5 раундов · призовой банк</span></button>
 <button class="mode wheelMode" onclick="openScreen('wheel')"><div class="modePreview previewWheel"><div class="previewBadge">UNLOCKED</div><div class="previewIcon">🎡</div></div><b>Колесо Фортуны</b><span>Красное / чёрное</span></button>
 <button class="mode" onclick="openScreen('achievements')"><div class="modePreview previewClassic"><div class="previewBadge">PROGRESS</div><div class="previewIcon">🏆</div></div><b>Достижения</b><span>Награды за прогресс</span></button></div><div class="sectionTitle">Ежедневный бонус</div><div class="gamecard"><div id="dailyText">+50 XP за первый вход сегодня</div><button class="primary" id="dailyBtn" style="margin-top:10px" onclick="claimDaily()">Забрать +50 XP</button></div></section>
 <section id="classic" class="screen"><div class="sectionTitle">🎰 Classic</div><div class="gamecard"><div class="muted">Собери три одинаковых символа</div><div class="reels"><div class="reel" id="c1">🍒</div><div class="reel" id="c2">🍋</div><div class="reel" id="c3">🍊</div></div><div class="result" id="classicResult"></div><button class="primary" id="classicBtn" onclick="spinClassic()">КРУТИТЬ</button><div class="muted" style="margin-top:12px;font-size:11px">Серия: <b id="classicStreak">0</b> · Игры: <b id="classicGames">0</b></div></div></section>
@@ -87,12 +170,72 @@ body{background:radial-gradient(circle at 50% -15%,#0b321d 0,#041009 38%,#030705
 <section id="userProfile" class="screen"><div class="sectionTitle">👤 Профиль игрока</div><div class="profile"><div class="bigavatar" id="viewAvatar">L</div><div><div style="font-size:20px;font-weight:950" id="viewName">Игрок</div><div class="muted" id="viewTag">@player</div><div style="margin-top:8px;font-size:12px">Уровень <b id="viewLevel">1</b></div></div></div><div class="balanceBox"><div><small>ИГРОВЫЕ ОЧКИ</small><div class="num" id="viewBalance">0</div></div><div style="text-align:right"><small>ПОЗИЦИЯ</small><div class="num" id="viewRank">—</div></div></div><div class="profileMeta"><div class="stat"><b id="viewGames">0</b><span>ИГР</span></div><div class="stat"><b id="viewBest">0</b><span>РЕКОРД</span></div><div class="stat"><b id="viewRegistered">—</b><span>РЕГИСТРАЦИЯ</span></div></div></section>
 <section id="achievements" class="screen"><div class="sectionTitle">🏆 Достижения</div><div class="list" id="achList"></div></section>
 <section id="leaderboard" class="screen"><div class="sectionTitle">👑 Рейтинг игроков</div><div class="gamecard" style="margin-bottom:10px"><div style="font-weight:900">Глобальный рейтинг</div><div class="muted" style="font-size:11px;margin-top:4px">Игроки из Supabase. Нажми на игрока, чтобы открыть его профиль.</div></div><div class="list" id="leaderList"><div class="empty">Загрузка рейтинга...</div></div></section>
+
+<section id="royale" class="screen">
+  <div class="sectionTitle">👑 Lucky Royale</div>
+  <div id="royaleLobby">
+    <div class="royaleHero">
+      <div class="royaleKicker">MULTIPLAYER ARENA</div>
+      <div class="royaleTitle">Lucky Royale</div>
+      <div class="royaleSub">Собери комнату, позови игроков и сражайся за общий призовой банк. Каждый получает по одному серверному спину в каждом из 5 раундов.</div>
+      <div class="royaleGlow">👑</div>
+      <div class="royalePills"><span class="royalePill"><b>2–8</b> игроков</span><span class="royalePill"><b>5</b> раундов</span><span class="royalePill"><b>70/30</b> для дуэли</span></div>
+    </div>
+    <div class="royaleSection royaleCard">
+      <div style="font-weight:950">Создать комнату</div>
+      <div class="muted" style="font-size:11px;margin-top:4px">Выбери входную ставку. Она резервируется сервером и возвращается при выходе до старта.</div>
+      <div class="royaleBetGrid">
+        <button class="royaleBet active" data-royale-bet="10" onclick="selectRoyaleBet(10,this)">10</button>
+        <button class="royaleBet" data-royale-bet="25" onclick="selectRoyaleBet(25,this)">25</button>
+        <button class="royaleBet" data-royale-bet="50" onclick="selectRoyaleBet(50,this)">50</button>
+        <button class="royaleBet" data-royale-bet="100" onclick="selectRoyaleBet(100,this)">100</button>
+        <button class="royaleBet" data-royale-bet="250" onclick="selectRoyaleBet(250,this)">250</button>
+      </div>
+      <button class="primary" id="royaleCreateBtn" style="margin-top:10px" onclick="royaleCreate()">👑 СОЗДАТЬ КОМНАТУ</button>
+    </div>
+    <div class="royaleSection royaleCard">
+      <div style="font-weight:950">Войти по коду</div>
+      <div class="muted" style="font-size:11px;margin-top:4px">Введи 6-символьный код комнаты друга.</div>
+      <div class="royaleCodeRow" style="margin-top:9px"><input id="royaleJoinCode" class="royaleInput" maxlength="6" inputmode="text" autocomplete="off" placeholder="ABC123" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)"><button class="royaleMini" onclick="royaleJoin()">ВОЙТИ</button></div>
+    </div>
+    <div class="royaleSection royaleCard" style="padding:12px">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="muted" style="font-size:11px">Твой баланс</span><b id="royaleLobbyBalance" style="color:#d7ff63">0</b></div>
+    </div>
+  </div>
+
+  <div id="royaleRoom" class="royaleHidden">
+    <div class="royaleCard">
+      <div class="royaleRoomTop">
+        <div><div class="muted" style="font-size:9px;letter-spacing:1.5px">КОД КОМНАТЫ</div><div class="royaleCode" id="royaleRoomCode">------</div><div class="royaleStatus" id="royaleRoomStatus">Ожидание игроков</div></div>
+        <button class="royaleCopy" onclick="copyRoyaleCode()">📋 КОПИРОВАТЬ</button>
+      </div>
+      <div class="royaleRound"><div><small>РАУНД</small><div><b id="royaleRoundNow">0</b> <span class="muted">/ 5</span></div></div><div style="text-align:right"><small>ПРИЗОВОЙ БАНК</small><div class="royalePot" id="royalePot">0</div></div></div>
+      <div class="royalePlayers" id="royalePlayers"></div>
+      <div class="royaleActionRow" id="royaleLobbyActions"><button class="secondary" id="royaleReadyBtn" onclick="royaleToggleReady()">✓ ГОТОВ</button><button class="primary" id="royaleStartBtn" onclick="royaleStart()">▶ СТАРТ</button></div>
+      <button class="secondary" id="royaleLeaveBtn" style="width:100%;margin-top:8px" onclick="royaleLeave()">← ВЫЙТИ ИЗ КОМНАТЫ</button>
+    </div>
+
+    <div id="royalePlayArea" class="royaleSpinBox royaleHidden">
+      <div class="royaleKicker">SERVER SPIN</div>
+      <div style="font-size:18px;font-weight:950;margin-top:3px">Твой ход</div>
+      <div class="royaleReels"><div class="royaleReel" id="rr1">🍒</div><div class="royaleReel" id="rr2">🍋</div><div class="royaleReel" id="rr3">🍊</div></div>
+      <div class="royaleSpinInfo" id="royaleSpinInfo">Каждый игрок делает один спин</div>
+      <div class="royaleWait" id="royaleSpinWait">Ждём остальных игроков...</div>
+      <button class="primary" id="royaleSpinBtn" style="margin-top:10px" onclick="royaleSpin()">🎰 КРУТИТЬ</button>
+    </div>
+
+    <div id="royaleFinal" class="royaleHidden" style="margin-top:13px"></div>
+    <div class="royaleCard" style="margin-top:13px"><div style="font-weight:950">Таблица Royale</div><div id="royaleScoreTable" class="royaleTable"></div></div>
+  </div>
+  <div id="royaleError" class="royaleHidden" style="margin-top:10px"></div>
+</section>
+
 </div><nav class="footer"><button class="nav active" data-screen="home" onclick="openScreen('home')"><i>🏠</i>Главная</button><button class="nav" data-screen="classic" onclick="openScreen('classic')"><i>🎰</i>Classic</button><button class="nav" data-screen="time" onclick="openScreen('time')"><i>⏱️</i>Time</button><button class="nav" data-screen="wheel" onclick="openScreen('wheel')"><i>🎡</i>Колесо</button><button class="nav" data-screen="profile" onclick="openScreen('profile')"><i>👤</i>Профиль</button><button class="nav" data-screen="leaderboard" onclick="openScreen('leaderboard')"><i>🏆</i>Рейтинг</button></nav></div>
 <div class="toast" id="toast"></div>
 <script>
 /* LUCKYSHACK 4.8 BUILD MARKER — LS41-MW-OWNER */
 /* Owner status comes from the verified Supabase Edge Function. */
-const LUCKYSHACK_BUILD={version:'4.8.0',buildId:'LS480-SERVER-AUTHORITATIVE',storageKey:'luckyshack_v41',authUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/telegram-auth',gameUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/game'};
+const LUCKYSHACK_BUILD={version:'4.8.0',buildId:'LS480-ROYALE-INTEGRATED',storageKey:'luckyshack_v41',authUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/telegram-auth',gameUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/game',royaleUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/royale'};
 const LEGACY_KEY='luckyshack_v4';
 const symbols=['🍒','🍋','🍊','🍇','⭐','💎','7️⃣'];
 const achievements=[
@@ -335,6 +478,7 @@ async function loadServerBalance(){
 }
 
 async function loading(){const steps=[['Подключение...',18],['Профиль...',35],['Серверный баланс...',65],['Режимы...',80],['Интерфейс...',92],['Готово',100]];for(const [s,p] of steps){setText('loadstep',s);document.getElementById('loadbar').style.width=p+'%';await new Promise(r=>setTimeout(r,120))}document.getElementById('loading').style.opacity='0';setTimeout(()=>{document.getElementById('loading').remove();document.getElementById('app').style.display='block'},450)}
+royalePatchOpenScreen();
 (async function(){
  try{
   await initTelegram();
