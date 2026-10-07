@@ -40,7 +40,7 @@ function royaleRenderFinal(){
 }
 function royaleRender(){
   const r=royaleState?.room;if(!r){royaleUiMode(false);return;}
-  royaleUiMode(true);setText('royaleRoomCode',r.code);setText('royaleRoomStatus',royaleStatusText(r.status));setText('royaleRoundNow',safeInt(r.current_round));setText('royalePot',safeInt(r.pot));
+  royaleUiMode(true);setText('royaleRoomCode',r.code);setText('royaleRoomStatus',royaleStatusText(r.status));setText('royaleRoundNow',safeInt(r.current_round));setText('royalePot',formatPoints(r.pot));
   royaleRenderPlayers();royaleRenderTable();royaleRenderFinal();
   const ps=royaleState.players||[],me=ps.find(p=>p.is_me),host=!!me?.is_host,playing=r.status==='playing',waiting=r.status==='waiting',finished=r.status==='finished',already=royaleLastSpinRound===safeInt(r.current_round);
   const lobbyActions=document.getElementById('royaleLobbyActions');if(lobbyActions)lobbyActions.classList.toggle('royaleHidden',!waiting);
@@ -52,7 +52,7 @@ function royaleRender(){
   const leave=document.getElementById('royaleLeaveBtn');if(leave)leave.textContent=finished?'← ЗАКРЫТЬ РЕЗУЛЬТАТ':'← ВЫЙТИ ИЗ КОМНАТЫ';
   if(finished&&royaleLastSpinRound>0) setText('royaleSpinInfo','🏁 Финальный раунд завершён');
   if(r.status==='cancelled')setText('royaleSpinInfo','Комната закрыта');
-  setText('royaleLobbyBalance',data.score);
+  setText('royaleLobbyBalance',formatPoints(data.score));
 }
 function alreadyText(done,total,already){if(already)return 'Твой спин сохранён. Ждём остальных игроков…';if(done>=total&&total)return 'Все игроки сделали ход — сервер переводит матч дальше.';return 'Ходов в текущем раунде: '+done+' / '+total;}
 async function royaleRefresh(){
@@ -74,7 +74,7 @@ function royaleHumanError(e){return ({ROYALE_SERVER_TIMEOUT:'Сервер Royale
 function royaleShowError(e){const el=document.getElementById('royaleError');if(!el)return;el.classList.remove('royaleHidden');el.innerHTML='<div class="royaleError">⚠️ '+royaleEscape(royaleHumanError(e.message))+'</div>';clearTimeout(royaleShowError._t);royaleShowError._t=setTimeout(()=>el.classList.add('royaleHidden'),4500);}
 function royalePatchOpenScreen(){
   const original=openScreen;
-  openScreen=function(id){if(currentScreen==='royale'&&id!=='royale')royaleStopPolling();original(id);if(id==='royale'){setText('royaleLobbyBalance',data.score);if(royaleRoomCode){royaleUiMode(true);royaleRefresh();royaleStartPolling()}else royaleUiMode(false);}}
+  openScreen=function(id){if(currentScreen==='royale'&&id!=='royale')royaleStopPolling();original(id);if(id==='royale'){setText('royaleLobbyBalance',formatPoints(data.score));if(royaleRoomCode){royaleUiMode(true);royaleRefresh();royaleStartPolling()}else royaleUiMode(false);}}
 }
 </script>
 <style>
@@ -148,13 +148,18 @@ body{background:radial-gradient(circle at 50% -15%,#0b321d 0,#041009 38%,#030705
 .royaleSpinInfo{min-height:24px;color:#d7ff63;font-weight:900;font-size:12px}.royaleWait{font-size:11px;color:#83a895;line-height:1.45}.royaleTable{margin-top:10px;display:grid;gap:6px}.royaleTableRow{display:grid;grid-template-columns:34px 1fr 62px 52px;align-items:center;gap:6px;padding:9px 8px;border-radius:12px;background:#061009;border:1px solid #123c26;font-size:10px}.royaleTableRow.head{background:#0a1a10;color:#6f997e;font-size:9px;text-transform:uppercase}.royaleTableRow .place{text-align:center;color:#d7ff63;font-weight:950}.royaleTableRow .rname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:850}.royaleTableRow .rscore{text-align:right;color:#5cffb0;font-weight:950}.royaleTableRow .rstate{text-align:right;color:#7fa68e}.royaleFinal{padding:17px;border-radius:22px;background:radial-gradient(circle at 50% 0%,#173e24,#07120b 65%);border:1px solid #2b8a4f;text-align:center;box-shadow:0 0 45px #35ff8a12}.royaleFinalCrown{font-size:46px;filter:drop-shadow(0 0 15px #d7ff6388);animation:royaleCrown 1.7s ease-in-out infinite}@keyframes royaleCrown{50%{transform:translateY(-5px) rotate(-2deg)}}.royaleFinalTitle{font-size:23px;font-weight:950;margin:4px 0;color:#effff5}.royalePrize{font-size:30px;font-weight:950;color:#d7ff63;text-shadow:0 0 22px #d7ff6340}.royaleFinalMeta{font-size:11px;color:#83a895;margin-top:3px}.royaleError{padding:12px;border-radius:14px;background:#1a0a0f;border:1px solid #6b2638;color:#ff8ea2;font-size:11px;line-height:1.4}.royaleEmpty{padding:16px;text-align:center;color:#759581;border:1px dashed #185532;border-radius:15px;background:#061009}.royaleHidden{display:none!important}
 @media(max-width:390px){.royaleBetGrid{grid-template-columns:repeat(3,1fr)}.royaleTitle{font-size:27px}.royaleTableRow{grid-template-columns:30px 1fr 54px 45px}}
 
+
+/* FINAL MOBILE BALANCE / RANK LAYOUT FIX */
+.balanceBox{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(78px,auto);align-items:center;gap:16px;width:100%;min-height:78px;margin-top:12px;padding:14px 15px;border-radius:18px;overflow:hidden}
+.balanceBox>div{min-width:0}.balanceBox>div:last-child{min-width:78px}.balanceBox small{display:block;font-size:10px;line-height:1.15;letter-spacing:1px;white-space:nowrap}.balanceBox .num{display:block;margin-top:4px;font-size:clamp(20px,6.5vw,28px);line-height:1.05;font-weight:950;letter-spacing:-.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}.balanceBox .rankValue{font-size:clamp(20px,6vw,26px);text-align:right}
+@media(max-width:390px){.balanceBox{grid-template-columns:minmax(0,1fr) 74px;gap:10px;padding:13px}.balanceBox .num{font-size:21px}.balanceBox .rankValue{font-size:20px}.balanceBox small{font-size:9px}}
 </style>
 </head>
 <body>
 <div id="loading"><div class="loadbox"><div class="cat">😼</div><div class="loadtitle">LuckyShack</div><div class="loadsub">ARCADE 4.8</div><div class="bar"><i id="loadbar"></i></div><div class="loadstep" id="loadstep">Подключение...</div></div></div>
 <div id="app"><div class="wrap">
 <header class="header"><div class="brand">LuckyShack<small>ARCADE 4.8</small></div><div class="user"><div class="avatar" id="avatar">L</div><div class="uname" id="headerUser">Игрок</div></div></header>
-<section id="home" class="screen active"><div class="hero"><div class="eyebrow">LUCKYSHACK ARCADE</div><div class="h1">Играй. Набирай очки.<br>Открывай достижения.</div><div class="balanceBox"><div><small>ТВОЙ ИГРОВОЙ БАЛАНС</small><div class="num" id="homeBalance">0</div></div><div style="text-align:right"><small>ПОЗИЦИЯ</small><div class="num" id="homeRank">—</div></div></div><div class="stats"><div class="stat"><b id="homeScore">0</b><span>ОЧКИ</span></div><div class="stat"><b id="homeBest">0</b><span>РЕКОРД</span></div><div class="stat"><b id="homeLevel">1</b><span>УРОВЕНЬ</span></div></div></div><div class="sectionTitle">🎮 Аркада</div><div class="arcadeGrid">
+<section id="home" class="screen active"><div class="hero"><div class="eyebrow">LUCKYSHACK ARCADE</div><div class="h1">Играй. Набирай очки.<br>Открывай достижения.</div><div class="balanceBox"><div><small>ТВОЙ ИГРОВОЙ БАЛАНС</small><div class="num" id="homeBalance">0</div></div><div><small style="text-align:right">ПОЗИЦИЯ</small><div class="num rankValue" id="homeRank">—</div></div></div><div class="stats"><div class="stat"><b id="homeScore">0</b><span>ОЧКИ</span></div><div class="stat"><b id="homeBest">0</b><span>РЕКОРД</span></div><div class="stat"><b id="homeLevel">1</b><span>УРОВЕНЬ</span></div></div></div><div class="sectionTitle">🎮 Аркада</div><div class="arcadeGrid">
 <button class="mode" onclick="openScreen('classic')"><div class="modePreview previewClassic"><div class="previewBadge">POPULAR</div><div class="previewIcon">🎰</div></div><b>Classic</b><span>Серия спинов и джекпот</span></button>
 <button class="mode" onclick="openScreen('time')"><div class="modePreview previewTime"><div class="previewBadge">30 SEC</div><div class="previewIcon">⏱️</div></div><b>Time Rush</b><span>Максимум очков за время</span></button>
 <button class="mode" onclick="openScreen('target')"><div class="modePreview previewTarget"><div class="previewBadge">SKILL</div><div class="previewIcon">🎯</div></div><b>Target</b><span>Охота за совпадениями</span></button>
@@ -168,8 +173,8 @@ body{background:radial-gradient(circle at 50% -15%,#0b321d 0,#041009 38%,#030705
 <section id="time" class="screen"><div class="sectionTitle">⏱️ Time</div><div class="gamecard"><div class="timer" id="timeLeft">30</div><div class="muted">секунд</div><div class="bigscore" id="timeScore">0</div><div class="reels"><div class="reel" id="t1">🍒</div><div class="reel" id="t2">🍋</div><div class="reel" id="t3">🍊</div></div><div class="result" id="timeResult"></div><button class="primary" id="timeBtn" onclick="timeAction()">НАЧАТЬ</button></div></section>
 <section id="target" class="screen"><div class="sectionTitle">🎯 Target</div><div class="gamecard"><div class="muted">Твоя цель</div><div class="target" id="targetSymbol">🎯</div><div class="muted">Попаданий: <b id="targetHits">0</b> / 3</div><div class="reels"><div class="reel" id="g1">🍒</div><div class="reel" id="g2">🍋</div><div class="reel" id="g3">🍊</div></div><div class="result" id="targetResult"></div><button class="primary" id="targetBtn" onclick="spinTarget()">ИСКАТЬ ЦЕЛЬ</button></div></section>
 <section id="wheel" class="screen"><div class="sectionTitle">🎡 Колесо Фортуны</div><div class="wheelHero"><div class="wheelTop"><div style="text-align:left"><div style="font-size:20px;font-weight:950">Красное или чёрное</div><div class="muted" style="font-size:11px;margin-top:3px">Угадай цвет и получи 2× ставки</div></div><div class="wheelBadge">LIVE WHEEL</div></div><div class="wheelWrap"><div class="wheelPointer">▼</div><div class="wheelDisc" id="wheelDisc"></div></div><div class="wheelLegend"><span><i class="r"></i>Красное</span><span><i class="b"></i>Чёрное</span><span><i class="g"></i>0 — зелёное</span></div><div class="wheelStatus" id="wheelStatus">Выбери цвет и размер ставки</div><div class="wheelChoices"><button class="betChoice red" id="betRed" onclick="selectWheelColor('red')">🔴 КРАСНОЕ</button><button class="betChoice black" id="betBlack" onclick="selectWheelColor('black')">⚫ ЧЁРНОЕ</button></div><div class="betRow"><button class="betAmount" onclick="selectWheelBet(10,this)">10</button><button class="betAmount" onclick="selectWheelBet(25,this)">25</button><button class="betAmount" onclick="selectWheelBet(50,this)">50</button></div><button class="primary" id="wheelSpinBtn" onclick="spinWheel()">КРУТИТЬ КОЛЕСО</button><div class="progressPill"><span>Баланс</span><b id="wheelBalance">0 очков</b></div></div><div class="sectionTitle">Как открыть</div><div id="wheelLock" class="wheelLock">🎟️ Сыграй минимум <b>3 серверных раунда</b> и накопи <b>25 очков</b>. После этого ставки станут доступны.</div></section>
-<section id="profile" class="screen"><div class="sectionTitle">👤 Профиль</div><div class="profile"><div class="bigavatar" id="profileAvatar">L</div><div><div style="font-size:20px;font-weight:950" id="profileName">Игрок</div><div class="muted" id="profileTag">@player</div><div style="margin-top:8px;font-size:12px">Уровень <b id="profileLevel">1</b> · <span id="profileXP">0</span> XP</div><div class="levelbar"><i id="xpbar"></i></div></div></div><div class="balanceBox"><div><small>ИГРОВЫЕ ОЧКИ</small><div class="num" id="profileBalance">0</div></div><div style="text-align:right"><small>РЕЙТИНГ</small><div class="num" id="profileRank">—</div></div></div><div class="profileMeta"><div class="stat"><b id="pGames">0</b><span>ИГР</span></div><div class="stat"><b id="pBest">0</b><span>РЕКОРД</span></div><div class="stat"><b id="pStreak">0</b><span>МАКС. СЕРИЯ</span></div></div></section>
-<section id="userProfile" class="screen"><div class="sectionTitle">👤 Профиль игрока</div><div class="profile"><div class="bigavatar" id="viewAvatar">L</div><div><div style="font-size:20px;font-weight:950" id="viewName">Игрок</div><div class="muted" id="viewTag">@player</div><div style="margin-top:8px;font-size:12px">Уровень <b id="viewLevel">1</b></div></div></div><div class="balanceBox"><div><small>ИГРОВЫЕ ОЧКИ</small><div class="num" id="viewBalance">0</div></div><div style="text-align:right"><small>ПОЗИЦИЯ</small><div class="num" id="viewRank">—</div></div></div><div class="profileMeta"><div class="stat"><b id="viewGames">0</b><span>ИГР</span></div><div class="stat"><b id="viewBest">0</b><span>РЕКОРД</span></div><div class="stat"><b id="viewRegistered">—</b><span>РЕГИСТРАЦИЯ</span></div></div></section>
+<section id="profile" class="screen"><div class="sectionTitle">👤 Профиль</div><div class="profile"><div class="bigavatar" id="profileAvatar">L</div><div><div style="font-size:20px;font-weight:950" id="profileName">Игрок</div><div class="muted" id="profileTag">@player</div><div style="margin-top:8px;font-size:12px">Уровень <b id="profileLevel">1</b> · <span id="profileXP">0</span> XP</div><div class="levelbar"><i id="xpbar"></i></div></div></div><div class="balanceBox"><div><small>ИГРОВЫЕ ОЧКИ</small><div class="num" id="profileBalance">0</div></div><div><small style="text-align:right">РЕЙТИНГ</small><div class="num rankValue" id="profileRank">—</div></div></div><div class="profileMeta"><div class="stat"><b id="pGames">0</b><span>ИГР</span></div><div class="stat"><b id="pBest">0</b><span>РЕКОРД</span></div><div class="stat"><b id="pStreak">0</b><span>МАКС. СЕРИЯ</span></div></div></section>
+<section id="userProfile" class="screen"><div class="sectionTitle">👤 Профиль игрока</div><div class="profile"><div class="bigavatar" id="viewAvatar">L</div><div><div style="font-size:20px;font-weight:950" id="viewName">Игрок</div><div class="muted" id="viewTag">@player</div><div style="margin-top:8px;font-size:12px">Уровень <b id="viewLevel">1</b></div></div></div><div class="balanceBox"><div><small>ИГРОВЫЕ ОЧКИ</small><div class="num" id="viewBalance">0</div></div><div><small style="text-align:right">ПОЗИЦИЯ</small><div class="num rankValue" id="viewRank">—</div></div></div><div class="profileMeta"><div class="stat"><b id="viewGames">0</b><span>ИГР</span></div><div class="stat"><b id="viewBest">0</b><span>РЕКОРД</span></div><div class="stat"><b id="viewRegistered">—</b><span>РЕГИСТРАЦИЯ</span></div></div></section>
 <section id="achievements" class="screen"><div class="sectionTitle">🏆 Достижения</div><div class="list" id="achList"></div></section>
 <section id="leaderboard" class="screen"><div class="sectionTitle">👑 Рейтинг игроков</div><div class="gamecard" style="margin-bottom:10px"><div style="font-weight:900">Глобальный рейтинг</div><div class="muted" style="font-size:11px;margin-top:4px">Игроки из Supabase. Нажми на игрока, чтобы открыть его профиль.</div></div><div class="list" id="leaderList"><div class="empty">Загрузка рейтинга...</div></div></section>
 
@@ -237,7 +242,7 @@ body{background:radial-gradient(circle at 50% -15%,#0b321d 0,#041009 38%,#030705
 <script>
 /* LUCKYSHACK 4.8 BUILD MARKER — LS41-MW-OWNER */
 /* Owner status comes from the verified Supabase Edge Function. */
-const LUCKYSHACK_BUILD={version:'4.8.0',buildId:'LS480-ROYALE-INTEGRATED',storageKey:'luckyshack_v41',authUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/telegram-auth',gameUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/game',royaleUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/royale'};
+const LUCKYSHACK_BUILD={version:'4.8.0',buildId:'LS480-ROYALE-FINAL-MOBILEFIX',storageKey:'luckyshack_v41',authUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/telegram-auth',gameUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/game',royaleUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/royale'};
 const LEGACY_KEY='luckyshack_v4';
 const symbols=['🍒','🍋','🍊','🍇','⭐','💎','7️⃣'];
 const achievements=[
@@ -342,18 +347,24 @@ function renderSocialError(id,msg='Не удалось загрузить дан
  const e=document.getElementById(id);if(e)e.innerHTML='<div class="empty">⚠️ '+escapeHTML(msg)+'</div>';
 }
 function formatDate(v){if(!v)return '—';try{return new Date(v).toLocaleDateString('ru-RU')}catch(e){return '—'}}
+function formatPoints(v){const n=safeInt(v);try{return new Intl.NumberFormat('ru-RU').format(n)}catch(e){return String(n)}}
+function formatRank(v){const n=safeInt(v,0);return n>0?'#'+n:'—'}
+
 async function loadSocial(){
  try{
   const lb=await serverApi('get_leaderboard',{limit:50});
   social.leaderboard=Array.isArray(lb.players)?lb.players:(Array.isArray(lb.leaderboard)?lb.leaderboard:[]);
-  social.rank=lb.my_rank??lb.rank??null;
+  let rank=safeInt(lb.my_rank,0);
+  if(!rank){
+   const meId=String(serverProfile?.id||'');
+   const me=social.leaderboard.find(p=>String(p.id||p.player_id||'')===meId || String(p.telegram_id||'')===String(tgUser?.id||''));
+   rank=safeInt(me?.rank,0);
+  }
+  social.rank=rank||null;
   updateLeaderboard();
-  setText('homeRank',social.rank??'—');setText('profileRank',social.rank??'—');
+  setText('homeRank',formatRank(social.rank));setText('profileRank',formatRank(social.rank));
  }catch(e){
-  console.warn('Leaderboard API unavailable',e);
-  social.leaderboard=[];social.rank=null;
-  updateLeaderboard();
-  setText('homeRank','—');setText('profileRank','—');
+  console.warn('Leaderboard API unavailable',e);social.leaderboard=[];social.rank=null;updateLeaderboard();setText('homeRank','—');setText('profileRank','—');
  }
 }
 async function openPublicProfile(id){
@@ -364,15 +375,15 @@ async function openPublicProfile(id){
   social.viewedProfile=p;
   setText('viewName',p.display_name||p.username||'Игрок');
   setText('viewTag',p.username?('@'+String(p.username).replace(/^@/,'')):'Игрок');
-  setText('viewLevel',p.level??1);setText('viewBalance',p.points??p.balance??0);setText('viewRank',p.rank??'—');
+  setText('viewLevel',p.level??1);setText('viewBalance',formatPoints(p.points??p.balance??0));setText('viewRank',formatRank(p.rank));
   setText('viewGames',p.games??0);setText('viewBest',p.best??p.best_score??0);setText('viewRegistered',formatDate(p.created_at));
   setText('viewAvatar',(p.avatar||p.display_name||p.username||'L').toString()[0].toUpperCase());
   openScreen('userProfile');
  }catch(e){toast('⚠️ Не удалось открыть профиль')}
 }
 function updateUI(){
- setText('homeScore',data.score);setText('homeBalance',data.score);setText('homeBest',data.best);setText('homeLevel',data.level);setText('wheelBalance',data.score+' очков');const wheelOpen=data.games>=WHEEL_UNLOCK_GAMES&&data.score>=WHEEL_MIN_BALANCE;const wb=document.getElementById('wheelSpinBtn');if(wb)wb.disabled=!wheelOpen||!wheelColor||wheelBet>data.score||wheelBusy;const wl=document.getElementById('wheelLock');if(wl)wl.innerHTML=wheelOpen?'🔓 Колесо открыто. Выбери цвет и ставку.':'🎟️ До открытия: <b>'+Math.max(0,WHEEL_UNLOCK_GAMES-data.games)+'</b> серверных раунда · ещё <b>'+Math.max(0,WHEEL_MIN_BALANCE-data.score)+'</b> очков.';setText('profileBalance',data.score);setText('profileRank',social.rank??'—');
- setText('profileName',userName());document.getElementById('profileName').insertAdjacentHTML('beforeend',ownerBadge());setText('profileTag',username());setText('profileLevel',data.level);setText('profileXP',data.xp);setText('pScore',data.score);setText('pBest',data.best);setText('pGames',data.games);setText('pStreak',data.maxStreak);setText('classicStreak',data.streak);setText('classicGames',data.games);setText('timeScore',timeScore);setText('targetHits',targetHits);
+ setText('homeScore',formatPoints(data.score));setText('homeBalance',formatPoints(data.score));setText('homeBest',formatPoints(data.best));setText('homeLevel',data.level);setText('wheelBalance',data.score+' очков');const wheelOpen=data.games>=WHEEL_UNLOCK_GAMES&&data.score>=WHEEL_MIN_BALANCE;const wb=document.getElementById('wheelSpinBtn');if(wb)wb.disabled=!wheelOpen||!wheelColor||wheelBet>data.score||wheelBusy;const wl=document.getElementById('wheelLock');if(wl)wl.innerHTML=wheelOpen?'🔓 Колесо открыто. Выбери цвет и ставку.':'🎟️ До открытия: <b>'+Math.max(0,WHEEL_UNLOCK_GAMES-data.games)+'</b> серверных раунда · ещё <b>'+Math.max(0,WHEEL_MIN_BALANCE-data.score)+'</b> очков.';setText('profileBalance',formatPoints(data.score));setText('profileRank',formatRank(social.rank));
+ setText('profileName',userName());document.getElementById('profileName').insertAdjacentHTML('beforeend',ownerBadge());setText('profileTag',username());setText('profileLevel',data.level);setText('profileXP',data.xp);setText('pScore',formatPoints(data.score));setText('pBest',formatPoints(data.best));setText('pGames',data.games);setText('pStreak',data.maxStreak);setText('classicStreak',data.streak);setText('classicGames',data.games);setText('timeScore',timeScore);setText('targetHits',targetHits);
  const xpIntoLevel=data.xp%100;document.getElementById('xpbar').style.width=xpIntoLevel+'%';
  const daily=document.getElementById('dailyBtn');if(data.dailyClaimed){daily.disabled=true;daily.textContent='Бонус получен сегодня';setText('dailyText','Возвращайся завтра за новым бонусом')}else{daily.disabled=false;daily.textContent='Забрать +50 XP';setText('dailyText','+50 XP за первый вход сегодня')}
  document.getElementById('headerUser').innerHTML=escapeHTML(userName())+ownerBadge();document.getElementById('avatar').textContent=avatarLetter();document.getElementById('profileAvatar').textContent=avatarLetter();
