@@ -8,13 +8,16 @@
 <!-- LUCKYSHACK_OFFICIAL_BUILD: LS41-MW-OWNER -->
 <!-- Source marker: LuckyShack 4.8 | Owner: @matwaysr | Arcade build -->
 <title>LuckyShack 4.8</title>
-<script src="https://telegram.org/js/telegram-web-app.js">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
 /* LUCKY ROYALE FRONTEND */
 const ROYALE_BETS=[10,25,50,100,250];
 let royaleBet=10,royaleRoomCode='',royaleState=null,royalePoll=null,royaleBusy=false,royaleReadyState=false,royaleLastSpinRound=0,royaleLastSpinPoints=0,royaleLastSpinSymbols=[];
 function royaleApi(action,extra={}){
   if(!tg?.initData) return Promise.reject(new Error('Telegram initData is empty'));
-  return fetch(LUCKYSHACK_BUILD.royaleUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData,action,...extra})}).then(async r=>{const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||('ROYALE_SERVER_'+r.status));return j;});
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),10000);
+  return fetch(LUCKYSHACK_BUILD.royaleUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData,action,...extra}),signal:controller.signal}).then(async r=>{const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||('ROYALE_SERVER_'+r.status));return j;}).catch(e=>{if(e?.name==='AbortError')throw new Error('ROYALE_SERVER_TIMEOUT');throw e;}).finally(()=>clearTimeout(timeout));
 }
 function selectRoyaleBet(amount,el){if(royaleBusy)return;royaleBet=ROYALE_BETS.includes(Number(amount))?Number(amount):10;document.querySelectorAll('.royaleBet').forEach(x=>x.classList.toggle('active',Number(x.dataset.royaleBet)===royaleBet));haptic('light');}
 function royaleUiMode(inRoom){document.getElementById('royaleLobby')?.classList.toggle('royaleHidden',inRoom);document.getElementById('royaleRoom')?.classList.toggle('royaleHidden',!inRoom);}
@@ -67,13 +70,12 @@ async function royaleLeave(){if(!royaleRoomCode)return;const finished=royaleStat
 function royaleExitFinished(){royaleStopPolling();royaleRoomCode='';royaleState=null;royaleLastSpinRound=0;royaleUiMode(false);document.getElementById('royaleFinal')?.classList.add('royaleHidden');document.getElementById('royaleError')?.classList.add('royaleHidden');updateUI();}
 function copyRoyaleCode(){const code=royaleState?.room?.code||royaleRoomCode;if(!code)return;const done=()=>toast('📋 Код '+code+' скопирован');if(navigator.clipboard?.writeText)navigator.clipboard.writeText(code).then(done).catch(()=>royaleCopyFallback(code));else royaleCopyFallback(code);}
 function royaleCopyFallback(code){const t=document.createElement('textarea');t.value=code;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();try{document.execCommand('copy');toast('📋 Код '+code+' скопирован')}catch(e){toast('Код комнаты: '+code)}t.remove();}
-function royaleHumanError(e){return ({INVALID_ROYALE_BET:'Недопустимая ставка.',INSUFFICIENT_POINTS:'Недостаточно очков.',ROOM_NOT_FOUND:'Комната не найдена.',ROOM_NOT_JOINABLE:'В эту комнату уже нельзя войти.',ROOM_FULL:'Комната заполнена.',NEED_TWO_PLAYERS:'Нужно минимум 2 игрока.',PLAYERS_NOT_READY:'Не все игроки готовы.',ONLY_HOST_CAN_START:'Только хост может начать матч.',ROOM_ALREADY_STARTED:'Матч уже запущен.',ALREADY_SPUN:'Ты уже сделал спин в этом раунде.',ROOM_NOT_PLAYING:'Матч сейчас не идёт.',ROOM_NOT_WAITING:'Комната уже запущена.',NOT_IN_ROOM:'Ты больше не в этой комнате.',ROOM_CODE_FAILED:'Не удалось создать код комнаты.'}[e])||e||'Ошибка Royale.';}
+function royaleHumanError(e){return ({ROYALE_SERVER_TIMEOUT:'Сервер Royale не отвечает.',INVALID_ROYALE_BET:'Недопустимая ставка.',INSUFFICIENT_POINTS:'Недостаточно очков.',ROOM_NOT_FOUND:'Комната не найдена.',ROOM_NOT_JOINABLE:'В эту комнату уже нельзя войти.',ROOM_FULL:'Комната заполнена.',NEED_TWO_PLAYERS:'Нужно минимум 2 игрока.',PLAYERS_NOT_READY:'Не все игроки готовы.',ONLY_HOST_CAN_START:'Только хост может начать матч.',ROOM_ALREADY_STARTED:'Матч уже запущен.',ALREADY_SPUN:'Ты уже сделал спин в этом раунде.',ROOM_NOT_PLAYING:'Матч сейчас не идёт.',ROOM_NOT_WAITING:'Комната уже запущена.',NOT_IN_ROOM:'Ты больше не в этой комнате.',ROOM_CODE_FAILED:'Не удалось создать код комнаты.'}[e])||e||'Ошибка Royale.';}
 function royaleShowError(e){const el=document.getElementById('royaleError');if(!el)return;el.classList.remove('royaleHidden');el.innerHTML='<div class="royaleError">⚠️ '+royaleEscape(royaleHumanError(e.message))+'</div>';clearTimeout(royaleShowError._t);royaleShowError._t=setTimeout(()=>el.classList.add('royaleHidden'),4500);}
 function royalePatchOpenScreen(){
   const original=openScreen;
   openScreen=function(id){if(currentScreen==='royale'&&id!=='royale')royaleStopPolling();original(id);if(id==='royale'){setText('royaleLobbyBalance',data.score);if(royaleRoomCode){royaleUiMode(true);royaleRefresh();royaleStartPolling()}else royaleUiMode(false);}}
 }
-
 </script>
 <style>
 :root{--bg:#030705;--panel:#07110c;--panel2:#0a1710;--line:#123c26;--text:#effff5;--muted:#83a895;--pink:#35ff8a;--violet:#00d66f;--cyan:#5cffb0;--green:#35ff8a;--gold:#d7ff63;--danger:#ff5d7a;--shadow:0 14px 40px rgba(0,255,110,.08)}
@@ -324,10 +326,17 @@ function setText(id,v){const e=document.getElementById(id);if(e)e.textContent=v}
 
 async function serverApi(action, extra={}){
   if(!tg?.initData) throw new Error('Telegram initData is empty');
-  const response=await fetch(LUCKYSHACK_BUILD.gameUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData,action,...extra})});
-  const result=await response.json().catch(()=>({}));
-  if(!response.ok||!result.ok) throw new Error(result.error||('SERVER_'+response.status));
-  return result;
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),12000);
+  try{
+    const response=await fetch(LUCKYSHACK_BUILD.gameUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData,action,...extra}),signal:controller.signal});
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok||!result.ok) throw new Error(result.error||('SERVER_'+response.status));
+    return result;
+  }catch(e){
+    if(e?.name==='AbortError')throw new Error('SERVER_TIMEOUT');
+    throw e;
+  }finally{clearTimeout(timeout)}
 }
 function renderSocialError(id,msg='Не удалось загрузить данные'){
  const e=document.getElementById(id);if(e)e.innerHTML='<div class="empty">⚠️ '+escapeHTML(msg)+'</div>';
@@ -492,9 +501,18 @@ royalePatchOpenScreen();
   await loading();
  }catch(e){
   console.error('LuckyShack startup error:',e);
-  setText('loadstep','Ошибка загрузки серверного баланса');
+  setText('loadstep',e.message==='SERVER_TIMEOUT'?'Сервер не отвечает. Проверь соединение и попробуй ещё раз.':'Ошибка подключения к серверу');
   document.getElementById('loadbar').style.width='100%';
-  setTimeout(()=>toast('⚠️ Не удалось получить баланс с сервера. Старые локальные очки не используются.'),300);
+  const bar=document.getElementById('loadbar');
+  if(bar)bar.style.background='linear-gradient(90deg,#ff5d7a,#ff9a5c)';
+  console.error('LuckyShack startup error:',e);
+  setTimeout(()=>{
+    const loadingEl=document.getElementById('loading');
+    if(loadingEl)loadingEl.style.opacity='0';
+    const app=document.getElementById('app');
+    if(app)app.style.display='block';
+    toast('⚠️ '+(e.message==='SERVER_TIMEOUT'?'Сервер не отвечает.':'Не удалось подключиться к серверу.'));
+  },300);
  }
 })();
 </script>
