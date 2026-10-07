@@ -33,7 +33,7 @@
 <script>
 /* LUCKYSHACK 4.1 BUILD MARKER — LS41-MW-OWNER */
 /* Owner status comes from the verified Supabase Edge Function. */
-const LUCKYSHACK_BUILD={version:'4.4',buildId:'LS44-SUPABASE-SERVER-BALANCE',storageKey:'luckyshack_v41',authUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/telegram-auth',gameUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/game'};
+const LUCKYSHACK_BUILD={version:'4.4.1',buildId:'LS441-SUPABASE-SERVER-BALANCE-FIX',storageKey:'luckyshack_v41',authUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/telegram-auth',gameUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/game'};
 const LEGACY_KEY='luckyshack_v4';
 const symbols=['🍒','🍋','🍊','⭐','💎','🍀','🔔','7️⃣'];
 const achievements=[
@@ -176,7 +176,8 @@ async function initTelegram(){
  }
 }
 async function loadServerBalance(){
- if(!tg?.initData)return false;
+ if(!tg?.initData){throw new Error('Telegram initData is empty')}
+
  try{
   const response=await fetch(LUCKYSHACK_BUILD.gameUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData,action:'get_balance'})});
   const result=await response.json();
@@ -188,11 +189,30 @@ async function loadServerBalance(){
   data.streak=safeInt(b.streak);
   data.maxStreak=safeInt(b.max_streak);
   data.best=Math.max(data.best,data.score);
+  // Server is authoritative for game statistics. Never restore these fields from old local builds.
   saveLocal();
   return true;
- }catch(e){console.error('Server balance error:',e);return false}
+ }catch(e){
+  console.error('Server balance error:',e);
+  throw e;
+ }
 }
 async function loading(){const steps=[['Подключение...',18],['Профиль...',35],['Серверный баланс...',65],['Режимы...',80],['Интерфейс...',92],['Готово',100]];for(const [s,p] of steps){setText('loadstep',s);document.getElementById('loadbar').style.width=p+'%';await new Promise(r=>setTimeout(r,120))}document.getElementById('loading').style.opacity='0';setTimeout(()=>{document.getElementById('loading').remove();document.getElementById('app').style.display='block'},450)}
-(async function(){await initTelegram();await loadData();await loadServerBalance();checkDaily();newTarget();updateUI();await loading()})();
+(async function(){
+ try{
+  await initTelegram();
+  await loadData();
+  await loadServerBalance();
+  checkDaily();
+  newTarget();
+  updateUI();
+  await loading();
+ }catch(e){
+  console.error('LuckyShack startup error:',e);
+  setText('loadstep','Ошибка загрузки серверного баланса');
+  document.getElementById('loadbar').style.width='100%';
+  setTimeout(()=>toast('⚠️ Не удалось получить баланс с сервера. Старые локальные очки не используются.'),300);
+ }
+})();
 </script>
 </body></html>
