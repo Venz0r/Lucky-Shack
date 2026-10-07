@@ -33,7 +33,7 @@
 <script>
 /* LUCKYSHACK 4.1 BUILD MARKER — LS41-MW-OWNER */
 /* Owner status comes from the verified Supabase Edge Function. */
-const LUCKYSHACK_BUILD={version:'4.3',buildId:'LS43-SUPABASE-GAME',storageKey:'luckyshack_v41',authUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/telegram-auth',gameUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/game'};
+const LUCKYSHACK_BUILD={version:'4.4',buildId:'LS44-SUPABASE-SERVER-BALANCE',storageKey:'luckyshack_v41',authUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/telegram-auth',gameUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/game'};
 const LEGACY_KEY='luckyshack_v4';
 const symbols=['🍒','🍋','🍊','⭐','💎','🍀','🔔','7️⃣'];
 const achievements=[
@@ -175,7 +175,24 @@ async function initTelegram(){
   return false;
  }
 }
-async function loading(){const steps=[['Подключение...',18],['Профиль...',35],['Сохранения...',55],['Режимы...',75],['Интерфейс...',92],['Готово',100]];for(const [s,p] of steps){setText('loadstep',s);document.getElementById('loadbar').style.width=p+'%';await new Promise(r=>setTimeout(r,120))}document.getElementById('loading').style.opacity='0';setTimeout(()=>{document.getElementById('loading').remove();document.getElementById('app').style.display='block'},450)}
-(async function(){await initTelegram();await loadData();checkDaily();newTarget();updateUI();await loading()})();
+async function loadServerBalance(){
+ if(!tg?.initData)return false;
+ try{
+  const response=await fetch(LUCKYSHACK_BUILD.gameUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData,action:'get_balance'})});
+  const result=await response.json();
+  if(!response.ok||!result.ok)throw new Error(result.error||'Balance load failed');
+  const b=result.balance||{};
+  data.score=safeInt(b.points);
+  data.xp=safeInt(b.xp);
+  data.games=safeInt(b.games);
+  data.streak=safeInt(b.streak);
+  data.maxStreak=safeInt(b.max_streak);
+  data.best=Math.max(data.best,data.score);
+  saveLocal();
+  return true;
+ }catch(e){console.error('Server balance error:',e);return false}
+}
+async function loading(){const steps=[['Подключение...',18],['Профиль...',35],['Серверный баланс...',65],['Режимы...',80],['Интерфейс...',92],['Готово',100]];for(const [s,p] of steps){setText('loadstep',s);document.getElementById('loadbar').style.width=p+'%';await new Promise(r=>setTimeout(r,120))}document.getElementById('loading').style.opacity='0';setTimeout(()=>{document.getElementById('loading').remove();document.getElementById('app').style.display='block'},450)}
+(async function(){await initTelegram();await loadData();await loadServerBalance();checkDaily();newTarget();updateUI();await loading()})();
 </script>
 </body></html>
