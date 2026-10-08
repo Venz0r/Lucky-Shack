@@ -246,7 +246,7 @@ body{background:radial-gradient(circle at 50% -15%,#0b321d 0,#041009 38%,#030705
 <script>
 /* LUCKYSHACK 4.8 BUILD MARKER — LS41-MW-OWNER */
 /* Owner status comes from the verified Supabase Edge Function. */
-const LUCKYSHACK_BUILD={version:'4.8.0',buildId:'LS480-ROYALE-RANKING-WHEEL-OFF',storageKey:'luckyshack_v41',authUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/telegram-auth',gameUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/game',royaleUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/royale'};
+const LUCKYSHACK_BUILD={version:'4.8.4',buildId:'LS484-RESTORED-CORE-ROYALE-RANKING',storageKey:'luckyshack_v41',authUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/telegram-auth',gameUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/game',royaleUrl:'https://lrdaovhvmjagfldmhufh.supabase.co/functions/v1/royale'};
 const LEGACY_KEY='luckyshack_v4';
 const symbols=['🍒','🍋','🍊','🍇','⭐','💎','7️⃣'];
 const achievements=[
@@ -410,7 +410,7 @@ function updateLeaderboard(){
   }).join('')
 }
 
-function openScreen(id){if(id==='wheel'){toast('🎡 Колесо Фортуны временно отключено');return}if(currentScreen==='time'&&id!=='time'&&timeBusy){toast('⏱️ Сначала закончи Time');return}if(currentScreen==='classic'&&classicBusy){toast('🎰 Подожди результат спина');return}if(currentScreen==='wheel'&&wheelBusy){toast('🎡 Подожди результат колеса');return}if(currentScreen==='target'&&targetBusy){toast('🎯 Подожди результат спина');return}document.querySelectorAll('.screen').forEach(e=>e.classList.toggle('active',e.id===id));document.querySelectorAll('.nav').forEach(e=>e.classList.toggle('active',e.dataset.screen===id));currentScreen=id;window.scrollTo(0,0);updateUI();if(id==='leaderboard'||id==='profile')loadSocial();try{tg?.BackButton?.show()}catch(e){}}
+function openScreen(id){if(currentScreen==='time'&&id!=='time'&&timeBusy){toast('⏱️ Сначала закончи Time');return}if(currentScreen==='classic'&&classicBusy){toast('🎰 Подожди результат спина');return}if(currentScreen==='wheel'&&wheelBusy){toast('🎡 Подожди результат колеса');return}if(currentScreen==='target'&&targetBusy){toast('🎯 Подожди результат спина');return}document.querySelectorAll('.screen').forEach(e=>e.classList.toggle('active',e.id===id));document.querySelectorAll('.nav').forEach(e=>e.classList.toggle('active',e.dataset.screen===id));currentScreen=id;window.scrollTo(0,0);updateUI();if(id==='leaderboard'||id==='profile')loadSocial();try{tg?.BackButton?.show()}catch(e){}}
 function randomSymbol(){return symbols[Math.floor(Math.random()*symbols.length)]}
 function animateReels(ids,duration=520){return new Promise(resolve=>{const start=Date.now();const timer=setInterval(()=>{ids.forEach(id=>setText(id,randomSymbol()));if(Date.now()-start>=duration){clearInterval(timer);resolve()}},75)})}
 function finalReels(ids){const r=ids.map(()=>randomSymbol());ids.forEach((id,i)=>setText(id,r[i]));return r}
@@ -470,7 +470,7 @@ function newTarget(){setText('targetSymbol',randomSymbol());targetHits=0;setText
 async function spinTarget(){if(targetBusy)return;targetBusy=true;const btn=document.getElementById('targetBtn');btn.disabled=true;try{const target=document.getElementById('targetSymbol').textContent;const r=await serverApi('target_spin',{target});const game=r.game||r;await animateReels(['g1','g2','g3']);const symbols=game.symbols||[];if(symbols.length===3)symbols.forEach((symbol,i)=>setText(['g1','g2','g3'][i],symbol));const hits=safeInt(game.hits),pts=safeInt(game.points);targetHits+=hits;data.score=safeInt(game.balance);data.xp=safeInt(game.total_xp);data.games=safeInt(game.games);data.streak=safeInt(game.streak);data.maxStreak=safeInt(game.max_streak);setText('targetHits',targetHits);setText('targetResult',hits?('🎯 Попаданий: '+hits+' · +'+pts+' очков'):'Мимо · сервер: +0');if(targetHits>=3){const completed=await serverApi('target_complete');const cg=completed.game||completed;data.score=safeInt(cg.balance);data.xp=safeInt(cg.total_xp);data.games=safeInt(cg.games);data.streak=safeInt(cg.streak);data.maxStreak=safeInt(cg.max_streak);targetHits=0;setTimeout(newTarget,500);toast('🎯 Цель выполнена! Раунд засчитан')}checkAchievements();updateUI()}catch(e){console.error('Target server error:',e);setText('targetResult','⚠️ Ошибка сервера. Попробуй ещё раз')}finally{targetBusy=false;btn.disabled=false}}
 function selectWheelColor(color){if(wheelBusy)return;wheelColor=color;document.getElementById('betRed')?.classList.toggle('active',color==='red');document.getElementById('betBlack')?.classList.toggle('active',color==='black');setText('wheelStatus','Ставка: '+wheelBet+' · '+(color==='red'?'🔴 Красное':'⚫ Чёрное'));updateUI();haptic('light')}
 function selectWheelBet(amount,el){if(wheelBusy)return;wheelBet=Math.max(1,safeInt(amount));document.querySelectorAll('.betAmount').forEach(x=>x.classList.remove('active'));el?.classList.add('active');if(wheelColor)setText('wheelStatus','Ставка: '+wheelBet+' · '+(wheelColor==='red'?'🔴 Красное':'⚫ Чёрное'));updateUI();haptic('light')}
-async function spinWheel(){toast('🎡 Колесо Фортуны временно отключено');}
+async function spinWheel(){toast('🎡 Колесо Фортуны временно отключено');return;}
 
 async function loadServerBalance(){
  const r=await serverApi('get_balance');
