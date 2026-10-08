@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#030705">
 <meta name="description" content="LuckyShack Arcade 4.1">
 <!-- LUCKYSHACK_OFFICIAL_BUILD: LS41-MW-OWNER -->
-<!-- Source marker: LuckyShack 4.8 | Owner: @matwaysr | Arcade build -->
+<!-- Source marker: LuckyShack 4.8.4 CLEAN | Arcade build -->
 <title>LuckyShack 4.8</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
@@ -471,6 +471,24 @@ async function spinTarget(){if(targetBusy)return;targetBusy=true;const btn=docum
 function selectWheelColor(color){if(wheelBusy)return;wheelColor=color;document.getElementById('betRed')?.classList.toggle('active',color==='red');document.getElementById('betBlack')?.classList.toggle('active',color==='black');setText('wheelStatus','Ставка: '+wheelBet+' · '+(color==='red'?'🔴 Красное':'⚫ Чёрное'));updateUI();haptic('light')}
 function selectWheelBet(amount,el){if(wheelBusy)return;wheelBet=Math.max(1,safeInt(amount));document.querySelectorAll('.betAmount').forEach(x=>x.classList.remove('active'));el?.classList.add('active');if(wheelColor)setText('wheelStatus','Ставка: '+wheelBet+' · '+(wheelColor==='red'?'🔴 Красное':'⚫ Чёрное'));updateUI();haptic('light')}
 async function spinWheel(){toast('🎡 Колесо Фортуны временно отключено');return;}
+
+async function initTelegram(){
+ if(!tg)return false;
+ try{
+  tg.ready();tg.expand();tg.setHeaderColor('#07110c');tg.setBackgroundColor('#030705');
+  tgUser=tg.initDataUnsafe?.user||null;
+  tg.BackButton.onClick(()=>openScreen('home'));
+  if(!tg.initData)throw new Error('Telegram initData is empty');
+  const result=await serverApi('get_me');
+  serverProfile=result.user||result.profile;
+  const u=serverProfile||{};
+  tgUser={...tgUser,id:u.telegram_id,username:(u.username||'').replace(/^@/,''),first_name:u.display_name||tgUser?.first_name||'Игрок'};
+  isOwner=u.role==='OWNER';
+  return true;
+ }catch(e){
+  console.error('Telegram auth error:',e);isOwner=false;toast('⚠️ Не удалось подтвердить Telegram');return false;
+ }
+}
 
 async function loadServerBalance(){
  const r=await serverApi('get_balance');
